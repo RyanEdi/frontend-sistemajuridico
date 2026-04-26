@@ -1,0 +1,136 @@
+{
+  "petitionForm": {
+    "id": "form_aposentadoria_pcd_obrigacao_fazer_df",
+    "label": "Formulário - Aposentadoria PCD (Obrigação de Fazer - DF)",
+    "sections": [
+      {
+        "id": "dados_autor",
+        "label": "Dados do Autor",
+        "fields": [
+          {
+            "id": "nomeAutor",
+            "label": "Nome completo do Autor",
+            "type": "text",
+            "placeholderKey": "[NOME_COMPLETO_DO_AUTOR]"
+          },
+          {
+            "id": "estadoCivil",
+            "label": "Estado civil",
+            "type": "text",
+            "placeholderKey": "[ESTADO_CIVIL]"
+          },
+          {
+            "id": "profissao",
+            "label": "Profissão",
+            "type": "text",
+            "placeholderKey": "[PROFISSÃO]"
+          },
+          {
+            "id": "cpf",
+            "label": "CPF",
+            "type": "cpf",
+            "mask": "999.999.999-99",
+            "placeholderKey": "[CPF_COM_MASCARA]"
+          },
+          {
+            "id": "rg",
+            "label": "RG",
+            "type": "text",
+            "placeholderKey": "[RG]"
+          },
+          {
+            "id": "enderecoCompleto",
+            "label": "Endereço completo",
+            "type": "textarea",
+            "placeholderKey": "[ENDERECO_COMPLETO]"
+          },
+          {
+            "id": "cep",
+            "label": "CEP",
+            "type": "cep",
+            "mask": "99999-999",
+            "placeholderKey": "[CEP_COM_MASCARA]"
+          },
+          {
+            "id": "emailAutor",
+            "label": "E-mail do Autor",
+            "type": "email",
+            "placeholderKey": "[EMAIL_AUTOR]"
+          }
+        ]
+      },
+      {
+        "id": "dados_advogado",
+        "label": "Dados do Advogado",
+        "fields": [
+          {
+            "id": "nomeAdvogado",
+            "label": "Nome do Advogado",
+            "type": "text",
+            "placeholderKey": "[NOME_DO_ADVOGADO]"
+          },
+          {
+            "id": "ufOab",
+            "label": "UF da OAB",
+            "type": "text",
+            "placeholderKey": "[UF]"
+          },
+          {
+            "id": "numeroOab",
+            "label": "Número da OAB",
+            "type": "text",
+            "placeholderKey": "[NUMERO_OAB]"
+          },
+          {
+            "id": "enderecoEscritorio",
+            "label": "Endereço do Escritório",
+            "type": "textarea",
+            "placeholderKey": "[ENDERECO_ESCRITORIO]"
+          }
+        ]
+      },
+      {
+        "id": "dados_reus",
+        "label": "Dados dos Réus",
+        "fields": [
+          {
+            "id": "enderecoDfIprev",
+            "label": "Endereço DF/IPREV",
+            "type": "textarea",
+            "placeholderKey": "[ENDERECO_DF_IPREV]"
+          }
+        ]
+      },
+      {
+        "id": "valores",
+        "label": "Valores Econômicos",
+        "fields": [
+          {
+            "id": "valorDanoMoral",
+            "label": "Valor do Dano Moral (R$)",
+            "type": "money",
+            "placeholderKey": "[VALOR_DANO_MORAL]"
+          },
+          {
+            "id": "valorDaCausa",
+            "label": "Valor da Causa (R$)",
+            "type": "money",
+            "placeholderKey": "[VALOR_DA_CAUSA]"
+          }
+        ]
+      },
+      {
+        "id": "dados_complementares",
+        "label": "Dados Complementares",
+        "fields": [
+          {
+            "id": "cidadeUf",
+            "label": "Cidade/UF",
+            "type": "text",
+            "placeholderKey": "[CIDADE_UF]"
+          }
+        ]
+      }
+    ]
+  }
+}

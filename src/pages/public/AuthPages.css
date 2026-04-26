@@ -1,0 +1,536 @@
+/* Tipografia moderna + institucional */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap');
+
+#root {
+  width: 100%;
+}
+
+.auth-page,
+.auth-page * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+.auth-page {
+  width: 100%;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #f2f2f4, #e8e8ea 55%, #d8d8da);
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main-container {
+  display: flex;
+  width: min(980px, 100%);
+  height: min(620px, calc(100vh - 40px));
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #d4d4d6;
+  box-shadow: 0 24px 50px rgba(15, 15, 15, 0.2);
+}
+
+/* LADO ESQUERDO - DESIGN */
+.design-side {
+  flex: 1;
+  background: linear-gradient(160deg, #0f0f0f 10%, #1e1e1e 58%, #2a0912 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #f7f8fb;
+  text-align: center;
+  padding: 30px;
+}
+
+.design-side::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(199, 167, 90, 0.06),
+    rgba(199, 167, 90, 0.06) 1px,
+    transparent 1px,
+    transparent 28px
+  );
+  pointer-events: none;
+}
+
+.circle-top,
+.circle-bottom {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  background: rgba(201, 162, 39, 0.07);
+}
+
+.circle-top {
+  width: 170px;
+  height: 170px;
+  top: 9%;
+  left: 12%;
+}
+.circle-bottom {
+  width: 220px;
+  height: 220px;
+  bottom: -65px;
+  right: 8%;
+}
+
+.welcome-content {
+  z-index: 1;
+  max-width: 340px;
+}
+
+.welcome-content h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.3rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.welcome-content p {
+  font-weight: 300;
+  opacity: 0.92;
+  line-height: 1.6;
+  letter-spacing: 0.4px;
+}
+
+.site-url {
+  position: absolute;
+  bottom: 28px;
+  font-size: 0.75rem;
+  letter-spacing: 2.2px;
+  color: rgba(246, 248, 251, 0.72);
+}
+
+/* LADO DIREITO - FORMULÁRIO */
+.login-side {
+  flex: 1;
+  padding: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #ffffff, #fbfcff);
+}
+
+.login-form-wrapper {
+  width: 100%;
+}
+
+.login-form-wrapper form {
+  width: 100%;
+  max-width: 390px;
+  margin: 0 auto;
+}
+
+.greeting {
+  color: #5f6e89;
+  font-size: 0.76rem;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.accent-pink {
+  color: #c9a227;
+  font-weight: 600;
+}
+
+.login-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.85rem;
+  line-height: 1.25;
+  margin: 0 0 36px 0;
+  color: #0f0f0f;
+}
+
+.light-text {
+  font-family: 'Poppins', sans-serif;
+  display: block;
+  margin-top: 4px;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #6f7f99;
+}
+
+.input-field {
+  margin-bottom: 18px;
+}
+
+.input-field label {
+  display: block;
+  font-size: 0.8rem;
+  color: #6a7891;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.input-field input {
+  width: 100%;
+  border: 1px solid #d4d4d6;
+  border-radius: 10px;
+  padding: 13px 14px;
+  outline: none;
+  font-size: 1rem;
+  color: #0f0f0f;
+  background: #fdfefe;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.input-field input:focus {
+  border-color: #6b1a2b;
+  box-shadow: 0 0 0 4px rgba(107, 26, 43, 0.1);
+}
+
+.login-error-box {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #f3b3b3;
+  background: #fdeaea;
+  color: #a52828;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.login-accept-box {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  background: rgba(201, 162, 39, 0.08);
+  color: #7a5a00;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.login-pending-box {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  background: linear-gradient(135deg, rgba(201,162,39,0.07) 0%, rgba(201,162,39,0.12) 100%);
+  color: #7a5a00;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.login-pending-box strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #5a3e00;
+}
+
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  margin: 6px 0 24px 0;
+  gap: 10px;
+}
+
+/* Estilo base do link (sobrescrevendo para form-footer) */
+.form-footer .create-account {
+  text-align: right;
+  margin-right: 0;
+}
+
+.checkbox-container {
+  color: #5b6b84;
+  cursor: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Estilo para links do footer (como no original #login-confirmado) */
+.form-footer .checkbox-container,
+.form-footer .create-account {
+  color: #5a6a84;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-right: 8px;
+  margin-top: 7px;
+}
+
+.checkbox-container input {
+  accent-color: #0f0f0f;
+}
+
+.forgot-link {
+  display: block;
+  text-align: center;
+  color: #6a7891;
+  text-decoration: none;
+  transition: 0.3s;
+  margin-top: 16px;
+}
+
+.forgot-link:hover {
+  color: #0f0f0f;
+  text-decoration: underline;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #0f0f0f;
+  color: #ffffff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(15, 15, 15, 0.24);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  background: #6b1a2b;
+  box-shadow: 0 14px 28px rgba(107, 26, 43, 0.3);
+}
+
+.create-account {
+  text-align: right;
+  color: #5a6a84;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.create-account:hover {
+  color: #0f0f0f;
+}
+
+/* AJUSTES EXCLUSIVOS DO CADASTRO (sem impactar outras páginas) */
+#cadastro-page .main-container {
+  height: min(620px, calc(100vh - 40px));
+}
+
+#cadastro-page .login-side {
+  padding: 56px;
+}
+
+#cadastro-page #cadastro-form {
+  max-width: 390px;
+}
+
+#cadastro-page #cadastro-form .greeting {
+  font-size: 0.76rem;
+  margin-bottom: 15px;
+}
+
+#cadastro-page #cadastro-form .login-title {
+  font-size: 1.85rem;
+  margin-bottom: 26px;
+}
+
+#cadastro-page #cadastro-form .light-text {
+  font-size: 1rem;
+}
+
+#cadastro-page #cadastro-form .input-field {
+  margin-bottom: 14px;
+}
+
+#cadastro-page #cadastro-form .input-field label {
+  font-size: 0.76rem;
+  margin-bottom: 5px;
+}
+
+#cadastro-page #cadastro-form .input-field input {
+  padding: 8px 11px;
+  font-size: 0.94rem;
+  border-radius: 8px;
+}
+
+#cadastro-page #cadastro-form .btn-submit {
+  padding: 11px;
+  margin-top: 9px;
+}
+
+#cadastro-page #cadastro-form .form-footer {
+  margin: 6px 0 0 0;
+  font-size: 0.8rem;
+}
+
+/* AJUSTES EXCLUSIVOS DO REDEFINIR SENHA (sem impactar outras páginas) */
+#redefinir-senha-page .login-title {
+  font-family: sans-serif;
+}
+
+#redefinir-senha-page .login-side {
+  padding: 56px;
+}
+
+#redefinir-senha-page #formTroca {
+  max-width: 390px;
+}
+
+#redefinir-senha-page #formTroca .login-title {
+  font-size: 1.85rem;
+  margin-bottom: 28px;
+}
+
+#redefinir-senha-page #formTroca .input-field {
+  margin-bottom: 18px;
+}
+
+#redefinir-senha-page #formTroca .input-field label {
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+
+#redefinir-senha-page #formTroca .input-field input {
+  padding: 13px 14px;
+  font-size: 1rem;
+  border-radius: 10px;
+}
+
+#redefinir-senha-page #formTroca .btn-submit {
+  padding: 14px;
+}
+
+#redefinir-senha-page #formTroca .form-footer {
+  margin: 6px 0 24px 0;
+  font-size: 0.85rem;
+}
+
+/* VERIFICAR EMAIL PAGE */
+.verify-subtitle {
+  font-size: 0.88rem;
+  color: #6a7891;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+
+.code-inputs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.code-digit {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f1f3b;
+  border: 2px solid #d4d4d6;
+  border-radius: 10px;
+  background: #fdfefe;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: 'Poppins', sans-serif;
+}
+
+.code-digit:focus {
+  border-color: #6b1a2b;
+  box-shadow: 0 0 0 4px rgba(107, 26, 43, 0.1);
+}
+
+.resend-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 22px;
+}
+
+.resend-text {
+  font-size: 0.85rem;
+  color: #6a7891;
+}
+
+.resend-btn {
+  background: none;
+  border: none;
+  color: #0f0f0f;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+  font-family: 'Poppins', sans-serif;
+}
+
+.resend-btn:hover {
+  color: #6b1a2b;
+}
+
+.resend-btn:disabled {
+  color: #9aa5b8;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+#verificar-email-page .login-side {
+  padding: 56px;
+}
+
+#verificar-email-page .login-form-wrapper form {
+  max-width: 390px;
+}
+
+@media (max-width: 900px) {
+  .main-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .design-side,
+  .login-side {
+    width: 100%;
+  }
+
+  .design-side {
+    min-height: 250px;
+  }
+
+  .login-side {
+    padding: 34px 24px;
+  }
+
+  #cadastro-page .main-container {
+    height: auto;
+  }
+
+  #cadastro-page .login-side {
+    padding: 30px 22px;
+  }
+
+  #redefinir-senha-page .login-side {
+    padding: 34px 24px;
+  }
+
+  #verificar-email-page .login-side {
+    padding: 34px 24px;
+  }
+
+  .code-digit {
+    width: 42px;
+    height: 48px;
+    font-size: 1.3rem;
+  }
+}

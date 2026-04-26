@@ -1,0 +1,152 @@
+{
+  "clientFormSchema": {
+    "id": "client_form_default",
+    "title": "Dados do Cliente",
+    "fields": [
+      {
+        "id": "nomeAutor",
+        "label": "Nome completo",
+        "type": "text",
+        "placeholder": "Digite o nome completo",
+        "required": true,
+        "mask": null
+      },
+      {
+        "id": "cpf",
+        "label": "CPF",
+        "type": "text",
+        "placeholder": "000.000.000-00",
+        "required": true,
+        "mask": "cpf"
+      },
+      {
+        "id": "dataNascimento",
+        "label": "Data de nascimento",
+        "type": "date",
+        "placeholder": "",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "estadoCivil",
+        "label": "Estado civil",
+        "type": "text",
+        "placeholder": "Solteiro, casado, etc.",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "profissao",
+        "label": "Profissão",
+        "type": "text",
+        "placeholder": "Profissão do cliente",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "rg",
+        "label": "RG",
+        "type": "text",
+        "placeholder": "Digite o RG",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "emailAutor",
+        "label": "E-mail",
+        "type": "email",
+        "placeholder": "email@exemplo.com",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "phone",
+        "label": "Telefone/WhatsApp",
+        "type": "text",
+        "placeholder": "(00) 00000-0000",
+        "required": false,
+        "mask": "phone"
+      },
+      {
+        "id": "cep",
+        "label": "CEP",
+        "type": "text",
+        "placeholder": "00000-000",
+        "required": false,
+        "mask": "cep"
+      },
+      {
+        "id": "enderecoCompleto",
+        "label": "Endereço completo",
+        "type": "textarea",
+        "placeholder": "Rua, número, bairro, cidade/UF",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "cidadeUf",
+        "label": "Cidade/UF da assinatura",
+        "type": "text",
+        "placeholder": "Brasília/DF",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "valorDanoMoral",
+        "label": "Valor Danos Morais (R$)",
+        "type": "text",
+        "placeholder": "Ex: 20000,00",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "valorDaCausa",
+        "label": "Valor da causa (R$)",
+        "type": "text",
+        "placeholder": "Ex: 56842,08",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "nomeAdvogado",
+        "label": "Nome do advogado",
+        "type": "text",
+        "placeholder": "Seu nome",
+        "required": true,
+        "mask": null
+      },
+      {
+        "id": "ufOab",
+        "label": "UF OAB",
+        "type": "text",
+        "placeholder": "DF, SP, RJ...",
+        "required": true,
+        "mask": null
+      },
+      {
+        "id": "numeroOab",
+        "label": "Número OAB",
+        "type": "text",
+        "placeholder": "000000",
+        "required": true,
+        "mask": null
+      },
+      {
+        "id": "enderecoEscritorio",
+        "label": "Endereço do escritório",
+        "type": "textarea",
+        "placeholder": "Endereço profissional",
+        "required": false,
+        "mask": null
+      },
+      {
+        "id": "enderecoDfIprev",
+        "label": "Endereço DF/IPREV",
+        "type": "textarea",
+        "placeholder": "Endereço dos réus",
+        "required": false,
+        "mask": null
+      }
+    ]
+  }
+}

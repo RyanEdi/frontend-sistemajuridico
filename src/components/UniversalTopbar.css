@@ -1,0 +1,120 @@
+.universal-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 80px;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.82);
+  border-bottom: 1px solid #e5e7ec;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 78px;
+}
+
+.universal-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 44px;
+}
+
+.universal-brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.universal-brand-title {
+  font-family: 'Noto Serif', serif;
+  font-size: 30px;
+  color: var(--planos-primary, #031632);
+  font-weight: 700;
+}
+
+.universal-brand-subtitle {
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--planos-secondary, #ad3300);
+}
+
+.universal-topbar-links {
+  display: flex;
+  gap: 34px;
+}
+
+.universal-topbar-link {
+  text-decoration: none;
+  color: #2a3d5c;
+  font-size: 29px;
+  font-size: clamp(14px, 0.95vw, 18px);
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 2px solid transparent;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.universal-topbar-link.active {
+  color: var(--planos-secondary, #ad3300);
+  border-bottom-color: var(--planos-secondary, #ad3300);
+}
+.universal-topbar-link.active:hover {
+  color: #1f3355;
+  border-bottom-color: #1f3355;
+}
+.universal-topbar-link:hover:not(.active) {
+  color: #ad3300;
+}
+
+.universal-topbar-link.primary:hover {
+  color: #1f3355;
+}
+
+
+
+.universal-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.universal-btn-link {
+  border: 0;
+  background: transparent;
+  color: var(--planos-primary, #031632);
+  font-weight: 700;
+  font-size: 29px;
+  font-size: clamp(14px, 0.95vw, 18px);
+  text-decoration: none;
+}
+
+.universal-btn-primary {
+  border: 0;
+  padding: 12px 24px;
+  border-radius: 8px;
+  background: var(--planos-primary, #031632);
+  color: #fff;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 820px) {
+  .universal-topbar {
+    padding: 0 18px;
+  }
+
+  .universal-topbar-links,
+  .universal-btn-link {
+    display: none;
+  }
+}
