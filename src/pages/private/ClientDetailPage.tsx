@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import InputWithActions from '../../components/InputWithActions';
+﻿import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import PetitionPreviewModal from '../../components/PetitionPreviewModal';
 import { ClientData } from '../../types/ClientData';
 import {
@@ -8,6 +7,9 @@ import {
   deleteDraft as deleteDraftLocal,
 } from '../../offline/draftsStorage';
 import { apiUrl } from '../../config/api';
+import AppSidebar from '../../components/AppSidebar';
+import AppTopbar from '../../components/AppTopbar';
+import './NovoClientePage.css';
 
 type Client = {
   id: string;
@@ -53,14 +55,35 @@ type Client = {
 };
 
 const DRAFT_ID = (clientId: string) => `petition-${clientId}`;
+
+const getTempoEmTexto = (dias: number) => {
+  const total = Math.max(0, Math.round(dias));
+  const anos = Math.floor(total / 365);
+  const restoAnual = total % 365;
+  const meses = Math.floor(restoAnual / 30);
+  const diasRestantes = restoAnual % 30;
+  return `${anos}a ${meses}m ${diasRestantes}d`;
+};
+
+const getTempoEmAnos = (dias: number) =>
+  (dias / 365).toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
 const ClientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const [client, setClient] = useState<Client | null>(null);
   const [form, setForm] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [previewData, setPreviewData] = useState<ClientData | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    document.title = 'Detalhes do Cliente | Sovereign';
+  }, []);
 
   useEffect(() => {
     const fetchClient = async () => {
@@ -100,42 +123,6 @@ const ClientDetailPage: React.FC = () => {
     fetchClient();
   }, [id]);
 
-  const updateField = (fieldId: string, value: string) => {
-    setForm(prev => ({ ...prev, [fieldId]: value }));
-  };
-
-  const saveField = async (fieldId: string) => {
-    try {
-      await fetch(apiUrl(`/api/clients/${id}`), {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ [fieldId]: form[fieldId] }),
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const deleteField = async (fieldId: string) => {
-    const newValue = '';
-    setForm(prev => ({ ...prev, [fieldId]: newValue }));
-    try {
-      await fetch(apiUrl(`/api/clients/${id}`), {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ [fieldId]: newValue }),
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   const handleGeneratePetition = () => {
     const clientData: ClientData = {
       nomeAutor: form.nomeAutor,
@@ -155,7 +142,6 @@ const ClientDetailPage: React.FC = () => {
       numeroOab: form.numeroOab,
       cidadeUf: form.cidadeUf,
     };
-
     setPreviewData(clientData);
     setShowPreview(true);
   };
@@ -176,248 +162,290 @@ const ClientDetailPage: React.FC = () => {
     deleteDraftLocal(DRAFT_ID(id));
   };
 
-  if (loading) return <p>Carregando cliente...</p>;
-  if (!client) return <p>Cliente não encontrado.</p>;
+  if (loading) {
+    return (
+      <div className="ed-page">
+        <AppSidebar active="clientes" />
+        <AppTopbar searchPlaceholder="Pesquisar clientes..." />
+        <main className="ed-main">
+          <div className="ed-main-inner" style={{ paddingTop: '7rem' }}>Carregando...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!client) {
+    return (
+      <div className="ed-page">
+        <AppSidebar active="clientes" />
+        <AppTopbar searchPlaceholder="Pesquisar clientes..." />
+        <main className="ed-main">
+          <div className="ed-main-inner" style={{ paddingTop: '7rem' }}>Cliente não encontrado.</div>
+        </main>
+      </div>
+    );
+  }
 
   const calculo = client.calculoPrevidenciario;
 
-  const getTempoEmTexto = (dias: number) => {
-    const total = Math.max(0, Math.round(dias));
-    const anos = Math.floor(total / 365);
-    const restoAnual = total % 365;
-    const meses = Math.floor(restoAnual / 30);
-    const diasRestantes = restoAnual % 30;
-    return `${anos}a ${meses}m ${diasRestantes}d`;
-  };
-
-  const getTempoEmAnos = (dias: number) =>
-    (dias / 365).toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-
-  const styles = {
-    calcCard: {
-      marginTop: 32,
-      padding: '1.5rem',
-      background: '#f8fafc',
-      border: '1px solid #e2e8f0',
-      borderRadius: 12,
-    } as React.CSSProperties,
-    calcHead: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'baseline',
-      marginBottom: 16,
-      gap: 12,
-    } as React.CSSProperties,
-    calcTitle: {
-      margin: 0,
-      fontSize: '1.1rem',
-      color: '#031632',
-    } as React.CSSProperties,
-    calcSub: {
-      fontSize: '0.82rem',
-      color: '#64748b',
-      fontWeight: 600,
-    } as React.CSSProperties,
-    calcGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-      gap: 12,
-      marginBottom: 20,
-    } as React.CSSProperties,
-    calcBox: {
-      background: '#fff',
-      borderRadius: 10,
-      padding: '0.9rem',
-      display: 'grid',
-      gap: 4,
-      border: '1px solid #e2e8f0',
-    } as React.CSSProperties,
-    calcLabel: {
-      fontSize: '0.65rem',
-      textTransform: 'uppercase' as const,
-      letterSpacing: '0.12em',
-      color: '#64748b',
-      fontWeight: 700,
-    } as React.CSSProperties,
-    calcValue: {
-      fontSize: '1rem',
-      color: '#031632',
-    } as React.CSSProperties,
-    calcSmall: {
-      color: '#64748b',
-      fontSize: '0.8rem',
-    } as React.CSSProperties,
-    calcTable: {
-      width: '100%',
-      borderCollapse: 'collapse' as const,
-      fontSize: '0.86rem',
-    } as React.CSSProperties,
-    calcTh: {
-      textAlign: 'left' as const,
-      padding: '8px 10px',
-      borderBottom: '2px solid #e2e8f0',
-      color: '#031632',
-      fontWeight: 700,
-      fontSize: '0.76rem',
-      textTransform: 'uppercase' as const,
-      letterSpacing: '0.1em',
-    } as React.CSSProperties,
-    calcTd: {
-      padding: '8px 10px',
-      borderBottom: '1px solid #f1f5f9',
-      color: '#1e293b',
-    } as React.CSSProperties,
-    calcTrEven: {
-      background: '#f8fafc',
-    } as React.CSSProperties,
-  };
-
   return (
-    <div>
-      <h1>Cliente: {client.name}</h1>
+    <div className="ed-page">
+      <AppSidebar active="clientes" />
+      <AppTopbar searchPlaceholder="Pesquisar clientes ou processos..." />
 
-      <InputWithActions
-        id="nomeAutor"
-        label="Nome completo"
-        value={form.nomeAutor || ''}
-        onChange={v => updateField('nomeAutor', v)}
-        onSave={() => saveField('nomeAutor')}
-        onDelete={() => deleteField('nomeAutor')}
-      />
-
-      <InputWithActions
-        id="cpf"
-        label="CPF"
-        value={form.cpf || ''}
-        onChange={v => updateField('cpf', v)}
-        onSave={() => saveField('cpf')}
-        onDelete={() => deleteField('cpf')}
-        mask="cpf"
-      />
-
-      <InputWithActions
-        id="dataNascimento"
-        label="Data de Nascimento"
-        value={form.dataNascimento || ''}
-        onChange={v => updateField('dataNascimento', v)}
-        onSave={() => saveField('dataNascimento')}
-        onDelete={() => deleteField('dataNascimento')}
-        type="date"
-      />
-
-      <InputWithActions
-        id="estadoCivil"
-        label="Estado Civil"
-        value={form.estadoCivil || ''}
-        onChange={v => updateField('estadoCivil', v)}
-        onSave={() => saveField('estadoCivil')}
-        onDelete={() => deleteField('estadoCivil')}
-      />
-
-      <InputWithActions
-        id="profissao"
-        label="Profissão"
-        value={form.profissao || ''}
-        onChange={v => updateField('profissao', v)}
-        onSave={() => saveField('profissao')}
-        onDelete={() => deleteField('profissao')}
-      />
-
-      <InputWithActions
-        id="cep"
-        label="CEP"
-        value={form.cep || ''}
-        onChange={v => updateField('cep', v)}
-        onSave={() => saveField('cep')}
-        onDelete={() => deleteField('cep')}
-        mask="cep"
-      />
-
-      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-        <button type="button" onClick={handleSaveDraftPetition}>
-          Salvar Rascunho
-        </button>
-        <button type="button" onClick={handleDeleteDraftPetition}>
-          Excluir Rascunho
-        </button>
-        <button type="button" onClick={handleGeneratePetition}>
-          Gerar Petição (Preview)
-        </button>
-      </div>
-
-      {calculo && (
-        <div style={styles.calcCard}>
-          <div style={styles.calcHead}>
-            <h3 style={styles.calcTitle}>Cálculo Previdenciário</h3>
-            <span style={styles.calcSub}>
-              Sexo: {client.sexoPrevidenciario || 'não informado'}
-              {client.possuiDeficiencia && client.grauDeficienciaIfbra
-                ? ` · PcD ${client.grauDeficienciaIfbra}`
-                : ''}
-            </span>
+      <main className="ed-main">
+        <div className="ed-main-inner">
+          <div className="ed-heading-block">
+            <nav className="ed-breadcrumb">
+              <Link to="/dashboard">Dashboard</Link>
+              <span>/</span>
+              <Link to="/clientes">Clientes</Link>
+              <span>/</span>
+              <span>{client.name}</span>
+            </nav>
+            <h2>{client.name}</h2>
+            <p>Geração de petição e cálculo previdenciário.</p>
           </div>
 
-          <div style={styles.calcGrid}>
-            <div style={styles.calcBox}>
-              <span style={styles.calcLabel}>Tempo bruto total</span>
-              <strong style={styles.calcValue}>{getTempoEmTexto(calculo.diasOriginaisTotal)}</strong>
-              <small style={styles.calcSmall}>{getTempoEmAnos(calculo.diasOriginaisTotal)} anos</small>
-            </div>
-            <div style={styles.calcBox}>
-              <span style={styles.calcLabel}>Tempo ponderado total</span>
-              <strong style={styles.calcValue}>{getTempoEmTexto(calculo.diasConvertidosTotal)}</strong>
-              <small style={styles.calcSmall}>{getTempoEmAnos(calculo.diasConvertidosTotal)} anos</small>
-            </div>
-            <div style={styles.calcBox}>
-              <span style={styles.calcLabel}>Especial até 13/11/2019</span>
-              <strong style={styles.calcValue}>{getTempoEmTexto(calculo.diasAteLimiteEspecial)}</strong>
-              <small style={styles.calcSmall}>Trecho elegível para conversão</small>
-            </div>
-            <div style={styles.calcBox}>
-              <span style={styles.calcLabel}>Especial após 13/11/2019</span>
-              <strong style={styles.calcValue}>{getTempoEmTexto(calculo.diasAposLimiteEspecial)}</strong>
-              <small style={styles.calcSmall}>Fora do corte especial</small>
-            </div>
-          </div>
+          <div className="ed-form-shell">
+            <div className="ed-blur-orb" aria-hidden="true" />
 
-          {calculo.periodos && calculo.periodos.length > 0 && (
-            <table style={styles.calcTable}>
-              <thead>
-                <tr>
-                  <th style={styles.calcTh}>Período</th>
-                  <th style={styles.calcTh}>Dias brutos</th>
-                  <th style={styles.calcTh}>Fator</th>
-                  <th style={styles.calcTh}>Dias convertidos</th>
-                  <th style={styles.calcTh}>Fundamento</th>
-                </tr>
-              </thead>
-              <tbody>
-                {calculo.periodos.map((p, i) => (
-                  <tr key={p.id} style={i % 2 === 0 ? styles.calcTrEven : undefined}>
-                    <td style={styles.calcTd}>{i + 1}</td>
-                    <td style={styles.calcTd}>{getTempoEmTexto(p.diasOriginais)}</td>
-                    <td style={styles.calcTd}>
-                      {p.fator !== null
-                        ? p.fator.toLocaleString('pt-BR', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : '--'}
-                    </td>
-                    <td style={styles.calcTd}>{getTempoEmTexto(p.diasConvertidos)}</td>
-                    <td style={{ ...styles.calcTd, color: '#64748b', fontSize: '0.8rem' }}>
-                      {p.fundamento || '--'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+            {/* Petição */}
+            <section className="ed-card">
+              <div className="ed-card-head">
+                <span className="material-symbols-outlined">history_edu</span>
+                <h3>Gerar Petição</h3>
+              </div>
+
+              <div className="ed-grid-12">
+                <label className="ed-field col-6">
+                  <span>Nome Completo</span>
+                  <input
+                    type="text"
+                    value={form.nomeAutor || ''}
+                    onChange={e => setForm(p => ({ ...p, nomeAutor: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-3">
+                  <span>CPF</span>
+                  <input
+                    type="text"
+                    value={form.cpf || ''}
+                    onChange={e => setForm(p => ({ ...p, cpf: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-3">
+                  <span>RG</span>
+                  <input
+                    type="text"
+                    value={form.rg || ''}
+                    onChange={e => setForm(p => ({ ...p, rg: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-4">
+                  <span>Estado Civil</span>
+                  <input
+                    type="text"
+                    value={form.estadoCivil || ''}
+                    onChange={e => setForm(p => ({ ...p, estadoCivil: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-4">
+                  <span>Profissão</span>
+                  <input
+                    type="text"
+                    value={form.profissao || ''}
+                    onChange={e => setForm(p => ({ ...p, profissao: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-4">
+                  <span>E-mail</span>
+                  <input
+                    type="email"
+                    value={form.emailAutor || ''}
+                    onChange={e => setForm(p => ({ ...p, emailAutor: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-3">
+                  <span>CEP</span>
+                  <input
+                    type="text"
+                    value={form.cep || ''}
+                    onChange={e => setForm(p => ({ ...p, cep: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-6">
+                  <span>Endereço Completo</span>
+                  <input
+                    type="text"
+                    value={form.enderecoCompleto || ''}
+                    onChange={e => setForm(p => ({ ...p, enderecoCompleto: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-3">
+                  <span>Cidade / UF</span>
+                  <input
+                    type="text"
+                    value={form.cidadeUf || ''}
+                    onChange={e => setForm(p => ({ ...p, cidadeUf: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-6">
+                  <span>Endereço do Escritório</span>
+                  <input
+                    type="text"
+                    value={form.enderecoEscritorio || ''}
+                    onChange={e => setForm(p => ({ ...p, enderecoEscritorio: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-6">
+                  <span>Endereço DF/IPREV</span>
+                  <input
+                    type="text"
+                    value={form.enderecoDfIprev || ''}
+                    onChange={e => setForm(p => ({ ...p, enderecoDfIprev: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-4">
+                  <span>Nome do Advogado</span>
+                  <input
+                    type="text"
+                    value={form.nomeAdvogado || ''}
+                    onChange={e => setForm(p => ({ ...p, nomeAdvogado: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-4">
+                  <span>UF OAB</span>
+                  <input
+                    type="text"
+                    value={form.ufOab || ''}
+                    onChange={e => setForm(p => ({ ...p, ufOab: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-4">
+                  <span>Nº OAB</span>
+                  <input
+                    type="text"
+                    value={form.numeroOab || ''}
+                    onChange={e => setForm(p => ({ ...p, numeroOab: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-6">
+                  <span>Valor do Dano Moral (R$)</span>
+                  <input
+                    type="text"
+                    value={form.valorDanoMoral || ''}
+                    onChange={e => setForm(p => ({ ...p, valorDanoMoral: e.target.value }))}
+                  />
+                </label>
+                <label className="ed-field col-6">
+                  <span>Valor da Causa (R$)</span>
+                  <input
+                    type="text"
+                    value={form.valorDaCausa || ''}
+                    onChange={e => setForm(p => ({ ...p, valorDaCausa: e.target.value }))}
+                  />
+                </label>
+              </div>
+
+              <div className="ed-form-actions" style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--surface-high)' }}>
+                <button className="discard-btn" type="button" onClick={handleDeleteDraftPetition}>
+                  <span className="material-symbols-outlined">delete</span>
+                  Excluir Rascunho
+                </button>
+                <div className="right-actions">
+                  <button className="draft-btn" type="button" onClick={() => navigate('/clientes')}>
+                    Voltar
+                  </button>
+                  <button className="draft-btn" type="button" onClick={handleSaveDraftPetition}>
+                    <span className="material-symbols-outlined">save</span>
+                    Salvar Rascunho
+                  </button>
+                  <button className="submit-btn" type="button" onClick={handleGeneratePetition}>
+                    <span className="material-symbols-outlined">preview</span>
+                    Gerar Petição
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* Cálculo Previdenciário */}
+            {calculo && (
+              <section className="ed-card">
+                <div className="ed-card-head spread">
+                  <div className="ed-card-head-left">
+                    <span className="material-symbols-outlined">calculate</span>
+                    <h3>Cálculo Previdenciário</h3>
+                  </div>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.05em' }}>
+                    Sexo: {client.sexoPrevidenciario || 'não informado'}
+                    {client.possuiDeficiencia && client.grauDeficienciaIfbra
+                      ? ` · PcD ${client.grauDeficienciaIfbra}`
+                      : ''}
+                  </span>
+                </div>
+
+                <div className="ed-grid-12" style={{ marginBottom: '1.25rem' }}>
+                  <div className="ed-field col-3" style={{ background: 'var(--surface-low)', borderRadius: '0.75rem', padding: '1rem' }}>
+                    <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Tempo bruto total</span>
+                    <strong style={{ fontSize: '1.1rem', display: 'block', marginTop: '0.3rem' }}>{getTempoEmTexto(calculo.diasOriginaisTotal)}</strong>
+                    <small style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>{getTempoEmAnos(calculo.diasOriginaisTotal)} anos</small>
+                  </div>
+                  <div className="ed-field col-3" style={{ background: 'var(--surface-low)', borderRadius: '0.75rem', padding: '1rem' }}>
+                    <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Tempo ponderado total</span>
+                    <strong style={{ fontSize: '1.1rem', display: 'block', marginTop: '0.3rem' }}>{getTempoEmTexto(calculo.diasConvertidosTotal)}</strong>
+                    <small style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>{getTempoEmAnos(calculo.diasConvertidosTotal)} anos</small>
+                  </div>
+                  <div className="ed-field col-3" style={{ background: 'var(--surface-low)', borderRadius: '0.75rem', padding: '1rem' }}>
+                    <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Especial até 13/11/2019</span>
+                    <strong style={{ fontSize: '1.1rem', display: 'block', marginTop: '0.3rem' }}>{getTempoEmTexto(calculo.diasAteLimiteEspecial)}</strong>
+                    <small style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>Trecho elegível para conversão</small>
+                  </div>
+                  <div className="ed-field col-3" style={{ background: 'var(--surface-low)', borderRadius: '0.75rem', padding: '1rem' }}>
+                    <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Especial após 13/11/2019</span>
+                    <strong style={{ fontSize: '1.1rem', display: 'block', marginTop: '0.3rem' }}>{getTempoEmTexto(calculo.diasAposLimiteEspecial)}</strong>
+                    <small style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>Fora do corte especial</small>
+                  </div>
+                </div>
+
+                {calculo.periodos && calculo.periodos.length > 0 && (
+                  <div className="admin-table-wrapper">
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>Período</th>
+                          <th>Dias Brutos</th>
+                          <th>Fator</th>
+                          <th>Dias Convertidos</th>
+                          <th>Fundamento</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {calculo.periodos.map((p, i) => (
+                          <tr key={p.id}>
+                            <td>{i + 1}</td>
+                            <td>{getTempoEmTexto(p.diasOriginais)}</td>
+                            <td style={{ color: '#c9a227', fontWeight: 600 }}>
+                              {p.fator !== null
+                                ? p.fator.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                : '--'}
+                            </td>
+                            <td>{getTempoEmTexto(p.diasConvertidos)}</td>
+                            <td style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>{p.fundamento || '--'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
         </div>
-      )}
+      </main>
+
+      <div className="ed-bg-right" aria-hidden="true" />
+      <div className="ed-bg-left" aria-hidden="true" />
 
       {previewData && (
         <PetitionPreviewModal
@@ -429,5 +457,6 @@ const ClientDetailPage: React.FC = () => {
     </div>
   );
 };
+
 
 export default ClientDetailPage;

@@ -669,56 +669,115 @@ const NovoClientePage: React.FC = () => {
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch('/api/clients', {
-    method: 'POST',
-    headers: {
-    'Content-Type': String('application/json'),
-    'x-user-id': String(user?.id ?? 1),           // ou o valor correto do usuário logado
-    'x-user-admin': user?.isAdmin ? 'true' : 'false', // ou 'true' para teste
-  },
-  credentials: 'include',
-        body: JSON.stringify({
-          name: trimmedName,
-          cpf: onlyDigits(trimmedCpf),
-          dataNascimento: dataNascimento || null,
-          email: trimmedEmail,
-          telefone: onlyDigits(trimmedTelefone),
-          cep: onlyDigits(trimmedCep),
-          address: endereco.trim(),
-          estadoCivil: estadoCivil.trim(),
-          profissao: profissao.trim(),
-          cidadeUf: trimmedCidadeUf,
-          contribuicaoMensal: contribuicao.trim(),
-          valorDanoMoral: danoMoral.trim(),
-          valorDaCausa: valorCausa.trim(),
-          possuiDeficiencia: pcd,
-          tipoDeficiencia: pcd ? tipoDeficiencia : null,
-          dataLaudo: pcd ? dataLaudo : null,
-          cid: pcd ? trimmedCid.toUpperCase() : null,
-          grauDeficienciaIfbra: pcd ? grauDeficiencia : null,
-          documentoComprobatorioNome: pcd ? documentoComprobatorioNome : null,
-          sexoPrevidenciario: sexoPrevidenciario || null,
-          observacoesJuridicas: observacoes.trim(),
-          periodos: periodos.map(periodo => ({
-            tipo: periodo.tipo,
-            inicio: periodo.inicio,
-            fim: periodo.fim,
+      // Se houver arquivo de documento, use FormData
+      let res;
+      if (pcd && documentoComprobatorioNome) {
+        const formDataToSend = new FormData();
+        formDataToSend.append('name', trimmedName);
+        formDataToSend.append('cpf', onlyDigits(trimmedCpf));
+        formDataToSend.append('dataNascimento', dataNascimento || '');
+        formDataToSend.append('email', trimmedEmail);
+        formDataToSend.append('telefone', onlyDigits(trimmedTelefone));
+        formDataToSend.append('cep', onlyDigits(trimmedCep));
+        formDataToSend.append('address', endereco.trim());
+        formDataToSend.append('estadoCivil', estadoCivil.trim());
+        formDataToSend.append('profissao', profissao.trim());
+        formDataToSend.append('cidadeUf', trimmedCidadeUf);
+        formDataToSend.append('contribuicaoMensal', contribuicao.trim());
+        formDataToSend.append('valorDanoMoral', danoMoral.trim());
+        formDataToSend.append('valorDaCausa', valorCausa.trim());
+        formDataToSend.append('possuiDeficiencia', String(pcd));
+        formDataToSend.append('tipoDeficiencia', pcd ? tipoDeficiencia : '');
+        formDataToSend.append('dataLaudo', pcd ? dataLaudo : '');
+        formDataToSend.append('cid', pcd ? trimmedCid.toUpperCase() : '');
+        formDataToSend.append('grauDeficienciaIfbra', pcd ? grauDeficiencia : '');
+        formDataToSend.append('sexoPrevidenciario', sexoPrevidenciario || '');
+        formDataToSend.append('observacoesJuridicas', observacoes.trim());
+        formDataToSend.append('periodos', JSON.stringify(periodos.map(periodo => ({
+          tipo: periodo.tipo,
+          inicio: periodo.inicio,
+          fim: periodo.fim,
+        }))));
+        formDataToSend.append('calculoPrevidenciario', JSON.stringify({
+          diasOriginaisTotal: resumoCalculo.diasOriginais,
+          diasConvertidosTotal: resumoCalculo.diasConvertidos,
+          diasAteLimiteEspecial: resumoCalculo.diasAteLimiteEspecial,
+          diasAposLimiteEspecial: resumoCalculo.diasAposLimiteEspecial,
+          periodos: periodosCalculados.map(pc => ({
+            id: pc.id,
+            diasOriginais: pc.diasOriginais,
+            diasConvertidos: pc.diasConvertidos,
+            fator: pc.fator,
+            fundamento: pc.fundamento,
           })),
-          calculoPrevidenciario: {
-            diasOriginaisTotal: resumoCalculo.diasOriginais,
-            diasConvertidosTotal: resumoCalculo.diasConvertidos,
-            diasAteLimiteEspecial: resumoCalculo.diasAteLimiteEspecial,
-            diasAposLimiteEspecial: resumoCalculo.diasAposLimiteEspecial,
-            periodos: periodosCalculados.map(pc => ({
-              id: pc.id,
-              diasOriginais: pc.diasOriginais,
-              diasConvertidos: pc.diasConvertidos,
-              fator: pc.fator,
-              fundamento: pc.fundamento,
-            })),
+        }));
+        // Buscar o arquivo do input file
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement | null;
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          formDataToSend.append('documentoComprobatorio', fileInput.files[0]);
+        }
+        res = await fetch('http://localhost:3335/api/clients', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'x-user-id': String(user?.id ?? 1),
+            'x-user-admin': user?.isAdmin ? 'true' : 'false',
           },
-        }),
-      });
+          body: formDataToSend,
+        });
+      } else {
+        // Sem arquivo, envia como JSON
+        res = await fetch('http://localhost:3335/api/clients', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-user-id': String(user?.id ?? 1),
+            'x-user-admin': user?.isAdmin ? 'true' : 'false',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            name: trimmedName,
+            cpf: onlyDigits(trimmedCpf),
+            dataNascimento: dataNascimento || null,
+            email: trimmedEmail,
+            telefone: onlyDigits(trimmedTelefone),
+            cep: onlyDigits(trimmedCep),
+            address: endereco.trim(),
+            estadoCivil: estadoCivil.trim(),
+            profissao: profissao.trim(),
+            cidadeUf: trimmedCidadeUf,
+            contribuicaoMensal: contribuicao.trim(),
+            valorDanoMoral: danoMoral.trim(),
+            valorDaCausa: valorCausa.trim(),
+            possuiDeficiencia: pcd,
+            tipoDeficiencia: pcd ? tipoDeficiencia : null,
+            dataLaudo: pcd ? dataLaudo : null,
+            cid: pcd ? trimmedCid.toUpperCase() : null,
+            grauDeficienciaIfbra: pcd ? grauDeficiencia : null,
+            documentoComprobatorioNome: pcd ? documentoComprobatorioNome : null,
+            sexoPrevidenciario: sexoPrevidenciario || null,
+            observacoesJuridicas: observacoes.trim(),
+            periodos: periodos.map(periodo => ({
+              tipo: periodo.tipo,
+              inicio: periodo.inicio,
+              fim: periodo.fim,
+            })),
+            calculoPrevidenciario: {
+              diasOriginaisTotal: resumoCalculo.diasOriginais,
+              diasConvertidosTotal: resumoCalculo.diasConvertidos,
+              diasAteLimiteEspecial: resumoCalculo.diasAteLimiteEspecial,
+              diasAposLimiteEspecial: resumoCalculo.diasAposLimiteEspecial,
+              periodos: periodosCalculados.map(pc => ({
+                id: pc.id,
+                diasOriginais: pc.diasOriginais,
+                diasConvertidos: pc.diasConvertidos,
+                fator: pc.fator,
+                fundamento: pc.fundamento,
+              })),
+            },
+          }),
+        });
+      }
 
       if (!res.ok) {
         const backendError = await getErrorMessageFromResponse(res);
@@ -1633,77 +1692,6 @@ const NovoClientePage: React.FC = () => {
                       />
                     </div>
                   </label>
-                </div>
-              </section>
-
-              <section className="ed-card licenca-premium-card">
-                <div className="ed-card-head">
-                  <span className="material-symbols-outlined">workspace_premium</span>
-                  <h3>Licença Premium</h3>
-                </div>
-
-                <div className="ed-grid-12">
-                  <label className="ed-field col-6">
-                    <span>Quantidade de Meses</span>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Ex: 12"
-                      value={licencaMeses}
-                      onChange={e => setLicencaMeses(e.target.value)}
-                    />
-                  </label>
-
-                  <label className="ed-field col-6 money-field">
-                    <span>Salário Atual</span>
-                    <div className="money-wrap">
-                      <i>R$</i>
-                      <input
-                        placeholder="0,00"
-                        type="text"
-                        inputMode="decimal"
-                        value={licencaSalario}
-                        onChange={e => setLicencaSalario(formatCurrency(e.target.value))}
-                      />
-                    </div>
-                  </label>
-
-                  {(() => {
-                    const meses = parseFloat(licencaMeses);
-                    const salario = parseFloat(
-                      licencaSalario.replace(/\./g, '').replace(',', '.')
-                    );
-                    if (!meses || meses <= 0 || !salario || salario <= 0) {
-                      return (
-                        <div className="licenca-result licenca-result--empty col-12">
-                          <span className="material-symbols-outlined">info</span>
-                          <span>Preencha os campos acima para calcular o valor da licença.</span>
-                        </div>
-                      );
-                    }
-                    const total = meses * salario;
-                    return (
-                      <div className="licenca-result col-12">
-                        <div className="licenca-result-info">
-                          <span>Valor Total da Licença</span>
-                          <small>
-                            {meses} {meses === 1 ? 'mês' : 'meses'} × R${' '}
-                            {salario.toLocaleString('pt-BR', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </small>
-                        </div>
-                        <strong>
-                          R${' '}
-                          {total.toLocaleString('pt-BR', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </strong>
-                      </div>
-                    );
-                  })()}
                 </div>
               </section>
 

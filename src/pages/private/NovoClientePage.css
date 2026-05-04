@@ -216,31 +216,8 @@
 .ed-topbar-right {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-shrink: 0;
-}
-
-.ed-icon-btn {
-  position: relative;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  color: #64748b;
-}
-
-.ed-icon-btn:hover {
-  color: var(--primary);
-}
-
-.ed-dot {
-  position: absolute;
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 50%;
-  background: #c9a227;
-  top: 0.1rem;
-  right: 0.1rem;
-  border: 2px solid #fff;
 }
 
 .ed-user-wrap {
@@ -935,6 +912,7 @@
   background: rgba(107, 26, 43, 0.06);
   filter: blur(50px);
   z-index: 0;
+  pointer-events: none;
 }
 
 .ed-form {
@@ -977,8 +955,8 @@
   gap: 0.75rem;
 }
 
-.ed-card-head .material-symbols-outlined,
-.ed-card-head-left .material-symbols-outlined {
+.ed-card-head > .material-symbols-outlined,
+.ed-card-head-left > .material-symbols-outlined {
   color: var(--primary);
   background: rgba(15, 15, 15, 0.05);
   border-radius: 0.45rem;
@@ -1361,6 +1339,321 @@
   font-style: normal;
 }
 
+/* ────────────────────────────────────────────────
+   Icon buttons (Notification / Help)
+───────────────────────────────────────────────── */
+.ed-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid rgba(15, 15, 15, 0.1);
+  border-radius: 0.55rem;
+  background: #f2f2f4;
+  cursor: pointer;
+  color: #536070;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.ed-icon-btn .material-symbols-outlined {
+  font-size: 1.15rem;
+}
+
+.ed-icon-btn:hover {
+  background: #0f0f0f;
+  border-color: #0f0f0f;
+  color: #fff;
+}
+
+.ed-dot {
+  position: absolute;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #c9a227;
+  top: 0.3rem;
+  right: 0.3rem;
+  border: 2px solid #f2f2f4;
+  pointer-events: none;
+}
+
+/* Hamburger — hidden on desktop */
+.ed-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid rgba(15, 15, 15, 0.1);
+  border-radius: 0.55rem;
+  background: #f2f2f4;
+  cursor: pointer;
+  color: #0f0f0f;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.ed-hamburger:hover {
+  background: #0f0f0f;
+  color: #fff;
+}
+
+/* Perfil — edit button */
+.perfil-edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgba(15, 15, 15, 0.12);
+  border-radius: 0.5rem;
+  background: #f2f2f4;
+  color: #0f0f0f;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.perfil-edit-btn .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.perfil-edit-btn:hover {
+  background: #0f0f0f;
+  color: #fff;
+}
+
+/* Petições — perfil incomplete banner */
+.pet-perfil-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(201, 162, 39, 0.06);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  border-radius: 0.6rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  color: #5a4300;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.pet-perfil-banner .material-symbols-outlined {
+  font-size: 1.15rem;
+  color: #c9a227;
+  flex-shrink: 0;
+}
+
+.pet-perfil-banner > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.pet-perfil-banner-link {
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 0.76rem;
+  color: #0f0f0f;
+  background: rgba(15, 15, 15, 0.07);
+  border: 1px solid rgba(15, 15, 15, 0.12);
+  border-radius: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.pet-perfil-banner-link:hover {
+  background: #0f0f0f;
+  color: #fff;
+}
+
+.pet-perfil-banner-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.pet-perfil-banner-close:hover {
+  color: #0f0f0f;
+}
+
+.pet-perfil-banner-close .material-symbols-outlined {
+  font-size: 1rem;
+  color: inherit;
+}
+
+/* ────────────────────────────────────────────────
+   Sidebar overlay (mobile)
+───────────────────────────────────────────────── */
+.ed-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+/* ────────────────────────────────────────────────
+   TABLET  ≤ 1080px
+───────────────────────────────────────────────── */
+@media (max-width: 1080px) {
+  .db-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .db-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .db-right-col {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+}
+
+/* ────────────────────────────────────────────────
+   MOBILE  ≤ 768px
+───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Main — no sidebar offset */
+  .ed-main {
+    margin-left: 0;
+    padding: 5.5rem 1rem 3rem;
+  }
+
+  /* Heading */
+  .ed-heading-block {
+    margin-bottom: 1.5rem;
+  }
+
+  .ed-heading-block h2 {
+    font-size: 1.7rem;
+  }
+
+  /* Cards */
+  .ed-card {
+    padding: 1.2rem;
+  }
+
+  /* 12-col grid collapses */
+  .col-6,
+  .col-4,
+  .col-3 {
+    grid-column: span 12;
+  }
+
+  /* Metrics */
+  .db-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .db-right-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Dashboard grid */
+  .db-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Client row — stack on mobile */
+  .db-client-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .db-client-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* List head — stack */
+  .db-list-head {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .db-list-head .submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Caso/Peticoes table — horizontal scroll */
+  .caso-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .caso-table-head,
+  .caso-table-row {
+    min-width: 600px;
+  }
+
+  /* Filtros wrap */
+  .caso-filtros {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .caso-filtro-btn {
+    white-space: nowrap;
+  }
+
+  /* Hero perfil */
+  .perfil-hero-card {
+    padding: 1rem;
+  }
+
+  .perfil-avatar-wrap {
+    flex-wrap: wrap;
+  }
+
+  /* Calendar layout */
+  .cal-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* Form actions */
+  .ed-form-actions {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+
+  .ed-form-actions .submit-btn,
+  .ed-form-actions .discard-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Petition banner */
+  .pet-perfil-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Dashboard module cards — 1 col */
+  .db-module-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .money-wrap input {
   padding-left: 2.1rem;
 }
@@ -1505,6 +1798,110 @@
   z-index: -1;
 }
 
+/* ── Notification dropdown ─────────────────────────────── */
+.ed-notif-wrap {
+  position: relative;
+}
+
+.ed-notif-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+}
+
+.ed-notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #222;
+}
+
+.ed-notif-header small {
+  font-weight: 400;
+  color: #999;
+  font-size: 0.78rem;
+}
+
+.ed-notif-empty {
+  padding: 1.25rem 1rem;
+  text-align: center;
+  font-size: 0.83rem;
+  color: #aaa;
+}
+
+.ed-notif-item {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transition: background 0.12s;
+}
+
+.ed-notif-item:last-child {
+  border-bottom: none;
+}
+
+.ed-notif-item:hover {
+  background: #fafafa;
+}
+
+.ed-notif-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ed-notif-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fff;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+}
+
+.ed-notif-days {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.ed-notif-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ed-notif-date {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+@media (max-width: 480px) {
+  .ed-notif-dropdown {
+    width: 280px;
+    right: -3rem;
+  }
+}
+
 .ed-bg-left {
   position: fixed;
   bottom: 0;
@@ -1531,27 +1928,55 @@
 }
 
 @media (max-width: 900px) {
+  /* Sidebar — slide-in drawer */
   .ed-sidebar {
-    display: none;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    z-index: 50;
+    width: 15rem;
   }
 
+  body.sidebar-open .ed-sidebar {
+    transform: translateX(0);
+  }
+
+  body.sidebar-open .ed-sidebar-overlay {
+    display: block;
+  }
+
+  .ed-hamburger {
+    display: flex;
+  }
+
+  /* Topbar spans full width */
   .ed-topbar {
     left: 0;
-    width: 100%;
-    padding: 0 1rem;
+    right: 0;
+    width: auto;
+    padding: 0 2.5rem 0 1rem;
+    gap: 0.5rem;
+    justify-content: space-between;
   }
 
+  /* Main — no sidebar offset */
   .ed-main {
     margin-left: 0;
     padding-top: 6rem;
   }
 
   .ed-search-wrap {
-    max-width: none;
+    flex: 0 1 auto;
+    max-width: 10rem;
+    margin-right: auto;
   }
 
   .ed-user-text {
     display: none;
+  }
+
+  .ed-user-wrap {
+    border-left: none;
+    padding-left: 0;
   }
 
   .ed-form-actions {
@@ -1567,14 +1992,24 @@
 
 @media (max-width: 640px) {
   .ed-topbar {
-    padding: 0 1rem;
+    padding: 0 2rem 0 0.75rem;
+    gap: 0.35rem;
+  }
+
+  .ed-search-wrap {
+    flex: 0 1 auto;
+    max-width: 7.5rem;
+    margin-right: auto;
   }
 
   .ed-topbar-right {
-    gap: 0.45rem;
+    gap: 0.35rem;
   }
 
+  /* Show avatar circle only (text already hidden from 900px rule) */
   .ed-user-wrap {
-    display: none;
+    display: flex;
+    padding-left: 0;
+    border-left: none;
   }
 }

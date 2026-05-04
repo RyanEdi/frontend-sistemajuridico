@@ -1,21 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
 import './NovoClientePage.css';
-import './DashboardPage.css';
 
 type StatusCaso = 'ativo' | 'em_andamento' | 'concluido' | 'suspenso';
 
 type Caso = {
   id: string;
-  cliente: string;
+  clienteNome: string | null;
   tipo: string;
   status: StatusCaso;
-  abertura: string;
-  prazo: string;
-  observacoes?: string;
+  dataAbertura: string;
+  prazo: string | null;
+  observacoes: string | null;
 };
 
 const STATUS_LABEL: Record<StatusCaso, string> = {
@@ -32,64 +31,124 @@ const STATUS_CLASS: Record<StatusCaso, string> = {
   suspenso: 'caso-status caso-status--suspenso',
 };
 
+const fmtDate = (s?: string | null) => {
+  if (!s) return '';
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return s;
+  return d.toISOString().slice(0, 10);
+};
+
 const CasoDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
   const [caso, setCaso] = useState<Caso | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [editandoStatus, setEditandoStatus] = useState(false);
-  const [novoStatus, setNovoStatus] = useState<StatusCaso>('ativo');
-  const [salvando, setSalvando] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // form fields
+  const [tipo, setTipo] = useState('');
+  const [status, setStatus] = useState<StatusCaso>('ativo');
+  const [dataAbertura, setDataAbertura] = useState('');
+  const [prazo, setPrazo] = useState('');
+  const [observacoes, setObservacoes] = useState('');
+
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedMsg, setSavedMsg] = useState('');
 
   useEffect(() => {
-    document.title = `Caso ${id} | Sovereign`;
+    document.title = `Caso | Sovereign`;
+    fetch(apiUrl(`/api/casos/${id}`), { credentials: 'include' })
+      .then(async r => {
+        if (r.status === 404) throw new Error('Caso não encontrado.');
+        if (!r.ok) throw new Error('Erro ao carregar o caso.');
+        return r.json();
+      })
+      .then((data: Caso) => {
+        setCaso(data);
+        setTipo(data.tipo || '');
+        setStatus(data.status || 'ativo');
+        setDataAbertura(fmtDate(data.dataAbertura));
+        setPrazo(fmtDate(data.prazo));
+        setObservacoes(data.observacoes || '');
+      })
+      .catch(e => setLoadError(e.message))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  useEffect(() => {
-    const fetchCaso = async () => {
-      try {
-        const res = await fetch(apiUrl(`/api/casos/${id}`), {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setCaso(data);
-          setNovoStatus(data.status);
-        } else if (res.status === 404) {
-          setError('Caso não encontrado.');
-        } else {
-          setError('Erro ao carregar o caso.');
-        }
-      } catch {
-        setError('Erro de conexão.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCaso();
-  }, [id]);
-
-  const handleSalvarStatus = async () => {
-    if (!caso) return;
-    setSalvando(true);
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setSaveError(null);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
     try {
-      const res = await fetch(apiUrl(`/api/casos/${id}/status`), {
+      const res = await fetch(apiUrl(`/api/casos/${id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ status: novoStatus }),
+        signal: controller.signal,
+        body: JSON.stringify({
+          tipo,
+          status,
+          dataAbertura,
+          prazo: prazo || null,
+          observacoes: observacoes.trim() || null,
+        }),
       });
-      if (res.ok) {
-        setCaso(prev => prev ? { ...prev, status: novoStatus } : prev);
-        setEditandoStatus(false);
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setSaveError(d.error || 'Erro ao salvar.');
+        return;
       }
-    } catch {
-      // silencioso — backend em dev
+      const updated = await res.json();
+      setCaso(updated);
+      setSavedMsg('Caso atualizado com sucesso!');
+      setTimeout(() => setSavedMsg(''), 3000);
+    } catch (err: any) {
+      setSaveError(err?.name === 'AbortError'
+        ? 'Tempo limite atingido. Verifique se o servidor está ativo.'
+        : 'Erro de conexão.');
     } finally {
-      setSalvando(false);
+      clearTimeout(timer);
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="ed-page">
+        <AppSidebar active="casos" />
+        <AppTopbar searchPlaceholder="Pesquisar casos..." />
+        <main className="ed-main">
+          <div className="ed-main-inner" style={{ paddingTop: '7rem' }}>Carregando...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (loadError || !caso) {
+    return (
+      <div className="ed-page">
+        <AppSidebar active="casos" />
+        <AppTopbar searchPlaceholder="Pesquisar casos..." />
+        <main className="ed-main">
+          <div className="ed-main-inner">
+            <div className="ed-heading-block" style={{ marginTop: '2rem' }}>
+              <nav className="ed-breadcrumb">
+                <Link to="/dashboard">Dashboard</Link><span>/</span>
+                <Link to="/casos">Casos</Link><span>/</span>
+                <span>Detalhe</span>
+              </nav>
+              <h2>Detalhe do Caso</h2>
+            </div>
+            <div className="ed-error-banner">{loadError || 'Caso não encontrado.'}</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="ed-page">
@@ -104,120 +163,108 @@ const CasoDetailPage: React.FC = () => {
               <span>/</span>
               <Link to="/casos">Casos</Link>
               <span>/</span>
-              <span>{id}</span>
+              <span>{caso.clienteNome || 'Caso'}</span>
             </nav>
-            <h2>Detalhe do Caso</h2>
-            <p>Visualize e gerencie as informações deste caso jurídico.</p>
+            <h2>{caso.clienteNome || 'Caso'}</h2>
+            <p>Visualize e edite as informações deste caso jurídico.</p>
           </div>
 
-          {loading && (
-            <div className="wip-banner">
-              <span className="material-symbols-outlined">hourglass_bottom</span>
-              <span>Carregando caso...</span>
-            </div>
-          )}
+          <form className="ed-form-shell" onSubmit={handleSubmit}>
+            <div className="ed-blur-orb" aria-hidden="true" />
 
-          {error && (
-            <div className="ed-error-banner">{error}</div>
-          )}
+            {saveError && <div className="ed-error-banner">{saveError}</div>}
+            {savedMsg && (
+              <div style={{ background: '#d4edda', color: '#155724', border: '1px solid #c3e6cb', borderRadius: '0.6rem', padding: '0.85rem 1.1rem', fontSize: '0.9rem', fontWeight: 500, marginBottom: '1.25rem' }}>
+                {savedMsg}
+              </div>
+            )}
 
-          {!loading && !error && !caso && (
-            <div className="wip-banner">
-              <span className="material-symbols-outlined">folder_off</span>
-              <span>Caso não encontrado.</span>
-            </div>
-          )}
-
-          {caso && (
-            <div className="ed-form-shell">
-              <div className="ed-blur-orb" aria-hidden="true" />
-
-              <section className="ed-card">
-                <div className="ed-card-head spread">
-                  <div className="ed-card-head-left">
-                    <span className="material-symbols-outlined">folder_open</span>
-                    <h3>Informações do Caso</h3>
-                  </div>
-                  <span className={STATUS_CLASS[caso.status]}>
-                    {STATUS_LABEL[caso.status]}
-                  </span>
+            {/* Informações do Caso */}
+            <section className="ed-card">
+              <div className="ed-card-head spread">
+                <div className="ed-card-head-left">
+                  <span className="material-symbols-outlined">folder_open</span>
+                  <h3>Informações do Caso</h3>
                 </div>
+                <span className={STATUS_CLASS[caso.status]}>
+                  {STATUS_LABEL[caso.status]}
+                </span>
+              </div>
 
-                <div className="ed-grid-12" style={{ marginTop: '1.25rem' }}>
-                  <div className="ed-field col-2">
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Nº do Caso</span>
-                    <p style={{ margin: '6px 0 0', fontWeight: 700, fontSize: '1rem', color: '#0f0f0f' }}>{caso.id}</p>
-                  </div>
-                  <div className="ed-field col-6">
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Cliente</span>
-                    <p style={{ margin: '6px 0 0', fontWeight: 600, fontSize: '1rem', color: '#0f0f0f' }}>{caso.cliente}</p>
-                  </div>
-                  <div className="ed-field col-4">
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tipo</span>
-                    <p style={{ margin: '6px 0 0', fontSize: '0.95rem', color: '#333' }}>{caso.tipo}</p>
-                  </div>
-                  <div className="ed-field col-4">
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Data de Abertura</span>
-                    <p style={{ margin: '6px 0 0', fontSize: '0.95rem', color: '#333' }}>{caso.abertura}</p>
-                  </div>
-                  <div className="ed-field col-4">
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Prazo</span>
-                    <p style={{ margin: '6px 0 0', fontSize: '0.95rem', color: '#333' }}>{caso.prazo || '—'}</p>
-                  </div>
-                  {caso.observacoes && (
-                    <div className="ed-field col-12">
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Observações</span>
-                      <p style={{ margin: '6px 0 0', fontSize: '0.92rem', color: '#444', lineHeight: 1.6 }}>{caso.observacoes}</p>
-                    </div>
-                  )}
-                </div>
-              </section>
+              <div className="ed-grid-12">
+                <label className="ed-field col-6">
+                  <span>Cliente</span>
+                  <input type="text" value={caso.clienteNome || '—'} disabled readOnly />
+                </label>
+                <label className="ed-field col-6">
+                  <span>Tipo de Caso</span>
+                  <input
+                    type="text"
+                    value={tipo}
+                    onChange={e => setTipo(e.target.value)}
+                    required
+                  />
+                </label>
+                <label className="ed-field col-4">
+                  <span>Data de Abertura</span>
+                  <input
+                    type="date"
+                    value={dataAbertura}
+                    onChange={e => setDataAbertura(e.target.value)}
+                    required
+                  />
+                </label>
+                <label className="ed-field col-4">
+                  <span>Prazo (opcional)</span>
+                  <input
+                    type="date"
+                    value={prazo}
+                    onChange={e => setPrazo(e.target.value)}
+                  />
+                </label>
+                <label className="ed-field col-4">
+                  <span>Status</span>
+                  <select value={status} onChange={e => setStatus(e.target.value as StatusCaso)}>
+                    <option value="ativo">Ativo</option>
+                    <option value="em_andamento">Em Andamento</option>
+                    <option value="concluido">Concluído</option>
+                    <option value="suspenso">Suspenso</option>
+                  </select>
+                </label>
+              </div>
+            </section>
 
-              <section className="ed-card">
-                <div className="ed-card-head">
-                  <span className="material-symbols-outlined">swap_horiz</span>
-                  <h3>Alterar Status</h3>
-                </div>
+            {/* Observações */}
+            <section className="ed-card">
+              <div className="ed-card-head">
+                <span className="material-symbols-outlined">sticky_note_2</span>
+                <h3>Observações</h3>
+              </div>
+              <label className="ed-field col-12">
+                <span>Notas sobre o caso</span>
+                <textarea
+                  rows={5}
+                  placeholder="Detalhes sobre o caso, estratégia jurídica, histórico relevante..."
+                  value={observacoes}
+                  onChange={e => setObservacoes(e.target.value)}
+                  style={{ resize: 'vertical' }}
+                />
+              </label>
+            </section>
 
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                  <label className="ed-field" style={{ flex: '1', minWidth: '180px' }}>
-                    <span>Status do Caso</span>
-                    <select
-                      value={novoStatus}
-                      onChange={e => { setNovoStatus(e.target.value as StatusCaso); setEditandoStatus(true); }}
-                    >
-                      <option value="ativo">Ativo</option>
-                      <option value="em_andamento">Em Andamento</option>
-                      <option value="concluido">Concluído</option>
-                      <option value="suspenso">Suspenso</option>
-                    </select>
-                  </label>
-                  {editandoStatus && (
-                    <button
-                      className="submit-btn"
-                      type="button"
-                      onClick={handleSalvarStatus}
-                      disabled={salvando}
-                      style={{ marginBottom: '1px' }}
-                    >
-                      {salvando ? 'Salvando...' : 'Salvar Status'}
-                    </button>
-                  )}
-                </div>
-              </section>
-
-              <div className="ed-form-actions">
-                <button
-                  className="discard-btn"
-                  type="button"
-                  onClick={() => navigate('/casos')}
-                >
-                  <span className="material-symbols-outlined">arrow_back</span>
-                  Voltar para Casos
+            <div className="ed-form-actions">
+              <button className="discard-btn" type="button" onClick={() => navigate('/casos')}>
+                <span className="material-symbols-outlined">arrow_back</span>
+                Voltar
+              </button>
+              <div className="right-actions">
+                <button className="submit-btn" type="submit" disabled={saving}>
+                  <span className="material-symbols-outlined">save</span>
+                  {saving ? 'Salvando...' : 'Salvar Alterações'}
                 </button>
               </div>
             </div>
-          )}
+          </form>
         </div>
       </main>
 

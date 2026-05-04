@@ -12,6 +12,7 @@ import ClientDetailPage from './pages/private/ClientDetailPage';
 import AdminPage from './pages/private/AdminPage';
 import NovoClientePage from './pages/private/NovoClientePage';
 import ClientesPage from './pages/private/ClientesPage';
+import ClienteDetalhesPage from './pages/private/ClienteDetalhesPage';
 import CasosPage from './pages/private/CasosPage';
 import NovoCasoPage from './pages/private/NovoCasoPage';
 import CasoDetailPage from './pages/private/CasoDetailPage';
@@ -20,7 +21,9 @@ import NovaPeticaoPage from './pages/private/NovaPeticaoPage';
 import CalendarioPage from './pages/private/CalendarioPage';
 import NovoEventoPage from './pages/private/NovoEventoPage';
 import DocumentosPage from './pages/private/DocumentosPage';
+import LicencaPremioPage from './pages/private/LicencaPremioPage';
 import PerfilPage from './pages/private/PerfilPage';
+import SettingsPage from './pages/private/SettingsPage';
 const AdminRoute: React.FC = () => {
   const { user, isLoading } = useAuth();
   if (isLoading) return null;
@@ -49,6 +52,7 @@ const App: React.FC = () => (
           <Route path="/clients/:id" element={<ClientDetailPage />} />
           <Route path="/admin" element={<AdminRoute />} />
           <Route path="/clientes/novo-cliente" element={<NovoClientePage />} />
+          <Route path="/clientes/:id" element={<ClienteDetalhesPage />} />
           <Route path="/clientes" element={<ClientesPage />} />
           <Route path="/casos" element={<CasosPage />} />
           <Route path="/casos/novo" element={<NovoCasoPage />} />
@@ -58,6 +62,8 @@ const App: React.FC = () => (
           <Route path="/calendario" element={<CalendarioPage />} />
           <Route path="/calendario/novo-evento" element={<NovoEventoPage />} />
           <Route path="/documentos" element={<DocumentosPage />} />
+          <Route path="/licenca-premio" element={<LicencaPremioPage />} />
+          <Route path="/configuracoes" element={<SettingsPage />} />
           <Route path="/perfil" element={<PerfilPage />} />
         </Route>
       </Routes>

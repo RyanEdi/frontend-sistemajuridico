@@ -1,65 +1,88 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
 import './NovoClientePage.css';
 import './DashboardPage.css';
 
-type EventoTipo = 'audiencia' | 'prazo' | 'pericia' | 'documento';
+type EventoTipo = 'audiencia' | 'prazo' | 'pericia' | 'documento' | 'reuniao' | 'outro';
 
 type Evento = {
-  id: number;
+  id: string;
   titulo: string;
-  data: Date;
+  data: string;
+  hora: string | null;
   tipo: EventoTipo;
+  clienteAssociado: string | null;
+  numeroCaso: string | null;
 };
 
-const MESES = ['Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-
-const EVENTOS_MOCK: Evento[] = [
-  { id: 1, titulo: 'Audiencia - Maria Aparecida', data: new Date(2026, 3, 22), tipo: 'audiencia' },
-  { id: 2, titulo: 'Prazo recurso - Jose Carlos', data: new Date(2026, 3, 25), tipo: 'prazo' },
-  { id: 3, titulo: 'Pericia medica - Ana Paula', data: new Date(2026, 3, 28), tipo: 'pericia' },
-  { id: 4, titulo: 'Entrega documentos - Fernanda', data: new Date(2026, 4, 5), tipo: 'documento' },
-  { id: 5, titulo: 'Audiencia - Roberto Mendes', data: new Date(2026, 4, 12), tipo: 'audiencia' },
-];
 
 const TIPO_CLASS: Record<EventoTipo, string> = {
   audiencia: 'cal-evento--audiencia',
   prazo: 'cal-evento--prazo',
   pericia: 'cal-evento--pericia',
   documento: 'cal-evento--documento',
+  reuniao: 'cal-evento--audiencia',
+  outro: 'cal-evento--documento',
 };
 
 const TIPO_LABEL: Record<EventoTipo, string> = {
-  audiencia: 'Audiencia',
+  audiencia: 'Audiência',
   prazo: 'Prazo',
-  pericia: 'Pericia',
+  pericia: 'Perícia',
   documento: 'Documento',
+  reuniao: 'Reunião',
+  outro: 'Outro',
+};
+
+const TIPO_ICON: Record<EventoTipo, string> = {
+  audiencia: 'gavel',
+  prazo: 'timer',
+  pericia: 'medical_services',
+  documento: 'description',
+  reuniao: 'groups',
+  outro: 'event_note',
+};
+
+const toDate = (s: string) => {
+  const [y, m, d] = s.slice(0, 10).split('-').map(Number);
+  return new Date(y, m - 1, d);
 };
 
 const CalendarioPage: React.FC = () => {
   const hoje = new Date();
   const [mesAtual, setMesAtual] = useState(hoje.getMonth());
   const [anoAtual, setAnoAtual] = useState(hoje.getFullYear());
+  const [eventos, setEventos] = useState<Evento[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = 'Calendario | Sovereign';
+    document.title = 'Calendário | Sovereign';
+    fetch(apiUrl('/api/eventos'), { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => setEventos(Array.isArray(data) ? data : []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const primeiroDiaMes = new Date(anoAtual, mesAtual, 1).getDay();
   const diasNoMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
 
-  const eventosDoMes = EVENTOS_MOCK.filter(
-    e => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual
-  );
+  const eventosDoMes = eventos.filter(e => {
+    const d = toDate(e.data);
+    return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+  });
 
-  const diasComEvento = new Set(eventosDoMes.map(e => e.data.getDate()));
+  const diasComEvento = new Set(eventosDoMes.map(e => toDate(e.data).getDate()));
 
-  const proximosEventos = EVENTOS_MOCK
-    .filter(e => e.data >= new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()))
-    .sort((a, b) => a.data.getTime() - b.data.getTime())
+  const hojeDate = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+  const proximosEventos = eventos
+    .filter(e => toDate(e.data) >= hojeDate)
+    .sort((a, b) => toDate(a.data).getTime() - toDate(b.data).getTime())
     .slice(0, 5);
 
   const navMes = (delta: number) => {
@@ -67,6 +90,11 @@ const CalendarioPage: React.FC = () => {
     setMesAtual(d.getMonth());
     setAnoAtual(d.getFullYear());
   };
+
+  const tipoSafe = (t: string): EventoTipo =>
+    ['audiencia', 'prazo', 'pericia', 'documento', 'reuniao', 'outro'].includes(t)
+      ? (t as EventoTipo)
+      : 'outro';
 
   return (
     <div className="ed-page">
@@ -79,15 +107,10 @@ const CalendarioPage: React.FC = () => {
             <nav className="ed-breadcrumb">
               <Link to="/dashboard">Dashboard</Link>
               <span>/</span>
-              <span>Calendario</span>
+              <span>Calendário</span>
             </nav>
-            <h2>Calendario</h2>
-            <p>Acompanhe prazos, audiencias e compromissos.</p>
-          </div>
-
-          <div className="wip-banner">
-            <span className="material-symbols-outlined">construction</span>
-            <span>Modulo em desenvolvimento - dados de exemplo para visualizacao do layout.</span>
+            <h2>Calendário</h2>
+            <p>Acompanhe prazos, audiências e compromissos.</p>
           </div>
 
           <div className="cal-layout">
@@ -135,33 +158,40 @@ const CalendarioPage: React.FC = () => {
             <section className="ed-card cal-agenda">
               <div className="ed-card-head">
                 <span className="material-symbols-outlined">event</span>
-                <h3>Proximos Eventos</h3>
+                <h3>Próximos Eventos</h3>
               </div>
 
-              {proximosEventos.length === 0 ? (
-                <p className="db-empty">Nenhum evento proximo.</p>
+              {loading ? (
+                <p className="db-empty">Carregando eventos...</p>
+              ) : proximosEventos.length === 0 ? (
+                <p className="db-empty">Nenhum evento próximo.</p>
               ) : (
                 <div className="cal-eventos-list">
-                  {proximosEventos.map(ev => (
-                    <div key={ev.id} className="cal-evento-item">
-                      <div className={`cal-evento-tipo ${TIPO_CLASS[ev.tipo]}`}>
-                        <span className="material-symbols-outlined">
-                          {ev.tipo === 'audiencia' ? 'gavel' :
-                           ev.tipo === 'prazo' ? 'timer' :
-                           ev.tipo === 'pericia' ? 'medical_services' : 'description'}
-                        </span>
+                  {proximosEventos.map(ev => {
+                    const tipo = tipoSafe(ev.tipo);
+                    return (
+                      <div key={ev.id} className="cal-evento-item">
+                        <div className={`cal-evento-tipo ${TIPO_CLASS[tipo]}`}>
+                          <span className="material-symbols-outlined">{TIPO_ICON[tipo]}</span>
+                        </div>
+                        <div className="cal-evento-info">
+                          <strong>{ev.titulo}</strong>
+                          <small>
+                            <span className={`cal-tipo-badge cal-tipo-badge--${tipo}`}>
+                              {TIPO_LABEL[tipo]}
+                            </span>
+                            {toDate(ev.data).toLocaleDateString('pt-BR')}
+                            {ev.hora ? ` às ${ev.hora.slice(0, 5)}` : ''}
+                          </small>
+                          {ev.clienteAssociado && (
+                            <small style={{ color: '#888', display: 'block', marginTop: '2px' }}>
+                              {ev.clienteAssociado}
+                            </small>
+                          )}
+                        </div>
                       </div>
-                      <div className="cal-evento-info">
-                        <strong>{ev.titulo}</strong>
-                        <small>
-                          <span className={`cal-tipo-badge cal-tipo-badge--${ev.tipo}`}>
-                            {TIPO_LABEL[ev.tipo]}
-                          </span>
-                          {ev.data.toLocaleDateString('pt-BR')}
-                        </small>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 

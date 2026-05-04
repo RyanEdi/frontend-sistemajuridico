@@ -271,6 +271,174 @@
   background: #fff;
 }
 
+/* ── Module cards ── */
+.db-module-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.db-module-icon {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.65rem;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.db-module-icon .material-symbols-outlined {
+  font-size: 1.3rem;
+}
+
+.db-module-icon--casos {
+  background: rgba(30, 58, 95, 0.1);
+  color: #1e3a5f;
+}
+
+.db-module-icon--peticoes {
+  background: rgba(74, 25, 66, 0.1);
+  color: #4a1942;
+}
+
+.db-module-icon--calendario {
+  background: rgba(20, 83, 45, 0.1);
+  color: #14532d;
+}
+
+.db-module-body {
+  flex: 1;
+}
+
+.db-module-body h4 {
+  margin: 0;
+  font-family: 'Noto Serif', serif;
+  font-size: 1rem;
+  color: #0f0f0f;
+}
+
+.db-module-body p {
+  margin: 0.25rem 0 0.4rem;
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.db-module-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #536070;
+  letter-spacing: 0.03em;
+}
+
+.db-module-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #0f0f0f;
+  text-decoration: none;
+  border: 1px solid rgba(15, 15, 15, 0.12);
+  background: #f2f2f4;
+  border-radius: 0.45rem;
+  padding: 0.45rem 0.8rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.db-module-btn .material-symbols-outlined {
+  font-size: 0.95rem;
+  transition: transform 0.15s;
+}
+
+.db-module-btn:hover {
+  background: #0f0f0f;
+  border-color: #0f0f0f;
+  color: #fff;
+}
+
+.db-module-btn:hover .material-symbols-outlined {
+  transform: translateX(2px);
+}
+
+/* ── Client list tweaks ── */
+.db-btn-sm {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  padding: 0.5rem 0.85rem;
+}
+
+.db-btn-sm .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.db-btn-details {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.72rem;
+  padding: 0.45rem 0.7rem;
+  text-decoration: none;
+}
+
+.db-btn-details .material-symbols-outlined {
+  font-size: 0.9rem;
+}
+
+.db-btn-delete {
+  border: 1px solid rgba(3, 22, 50, 0.1);
+  background: #f0f2f6;
+  color: #536070;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.db-btn-delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: rgba(185, 28, 28, 0.2);
+}
+
+.db-list-footer {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(15, 15, 15, 0.06);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.db-ver-todos-link {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #536070;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.db-ver-todos-link .material-symbols-outlined {
+  font-size: 0.95rem;
+  transition: transform 0.15s;
+}
+
+.db-ver-todos-link:hover {
+  color: #0f0f0f;
+}
+
+.db-ver-todos-link:hover .material-symbols-outlined {
+  transform: translateX(2px);
+}
+
 @media (max-width: 1080px) {
   .db-grid {
     grid-template-columns: 1fr;

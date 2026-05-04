@@ -16,6 +16,16 @@ const PerfilPage: React.FC = () => {
   const [telefone, setTelefone] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // edit mode
+  const [editMode, setEditMode] = useState(false);
+  const [editNome, setEditNome] = useState('');
+  const [editOab, setEditOab] = useState('');
+  const [editEstadoOab, setEditEstadoOab] = useState('');
+  const [editTelefone, setEditTelefone] = useState('');
+  const [savingInfo, setSavingInfo] = useState(false);
+  const [infoSuccess, setInfoSuccess] = useState('');
+  const [infoError, setInfoError] = useState('');
+
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [uploadingFoto, setUploadingFoto] = useState(false);
@@ -64,6 +74,61 @@ const PerfilPage: React.FC = () => {
     .join('')
     .toUpperCase() || 'U';
 
+  const startEdit = () => {
+    setEditNome(nome);
+    setEditOab(oab);
+    setEditEstadoOab(estadoOab);
+    setEditTelefone(telefone);
+    setInfoError('');
+    setInfoSuccess('');
+    setEditMode(true);
+  };
+
+  const cancelEdit = () => {
+    setEditMode(false);
+    setInfoError('');
+  };
+
+  const handleSalvarInfo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInfoError('');
+    setInfoSuccess('');
+    if (!editNome.trim()) {
+      setInfoError('Nome completo é obrigatório.');
+      return;
+    }
+    setSavingInfo(true);
+    try {
+      const res = await fetch(apiUrl('/api/auth/perfil'), {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome_completo: editNome.trim(),
+          numero_oab: editOab.trim(),
+          estado_oab: editEstadoOab.trim(),
+          telefone: editTelefone.trim(),
+        }),
+      });
+      if (res.ok) {
+        setNome(editNome.trim());
+        setOab(editOab.trim());
+        setEstadoOab(editEstadoOab.trim());
+        setTelefone(editTelefone.trim());
+        setInfoSuccess('Informações atualizadas com sucesso.');
+        setEditMode(false);
+        setTimeout(() => setInfoSuccess(''), 3500);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setInfoError(data.error || 'Erro ao salvar informações.');
+      }
+    } catch {
+      setInfoError('Erro de conexão ao salvar informações.');
+    } finally {
+      setSavingInfo(false);
+    }
+  };
+
   const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -89,7 +154,6 @@ const PerfilPage: React.FC = () => {
       });
       if (res.ok) {
         setFotoSuccess('Foto atualizada com sucesso.');
-        // Busca o novo caminho do backend e força atualização global
         try {
           const perfilRes = await fetch(apiUrl('/api/auth/perfil'), { credentials: 'include' });
           if (perfilRes.ok) {
@@ -103,7 +167,7 @@ const PerfilPage: React.FC = () => {
         setTimeout(() => setFotoSuccess(''), 3000);
       }
     } catch {
-      // falha silenciosa — preview já foi exibido
+      // falha silenciosa
     } finally {
       setUploadingFoto(false);
     }
@@ -160,7 +224,7 @@ const PerfilPage: React.FC = () => {
               <span>Meu Perfil</span>
             </nav>
             <h2>Meu Perfil</h2>
-            <p>Visualize suas informações e altere sua foto ou senha.</p>
+            <p>Visualize e edite suas informações, foto ou senha.</p>
           </div>
 
           {loading ? (
@@ -232,48 +296,126 @@ const PerfilPage: React.FC = () => {
                 </div>
               </section>
 
-              {/* Informações pessoais — somente leitura */}
+              {/* Informações pessoais — editável */}
               <section className="ed-card">
                 <div className="ed-card-head">
                   <span className="material-symbols-outlined">manage_accounts</span>
                   <h3>Informações Pessoais</h3>
-                  <span className="perfil-readonly-badge">
-                    <span className="material-symbols-outlined">lock</span>
-                    Somente leitura
-                  </span>
+                  {!editMode && (
+                    <button
+                      type="button"
+                      className="perfil-edit-btn"
+                      onClick={startEdit}
+                    >
+                      <span className="material-symbols-outlined">edit</span>
+                      Editar
+                    </button>
+                  )}
                 </div>
 
-                <div className="ed-grid-12">
-                  <div className="ed-field col-6 perfil-field-readonly">
-                    <span>Nome Completo</span>
-                    <p>{nome || '—'}</p>
-                  </div>
+                {infoSuccess && <div className="ed-success-banner">{infoSuccess}</div>}
 
-                  <div className="ed-field col-6 perfil-field-readonly">
-                    <span>E-mail</span>
-                    <p>{email || '—'}</p>
-                  </div>
-
-                  <div className="ed-field col-4 perfil-field-readonly">
-                    <span>Número OAB</span>
-                    <p>{oab || '—'}</p>
-                  </div>
-
-                  <div className="ed-field col-4 perfil-field-readonly">
-                    <span>Estado OAB</span>
-                    <p>{estadoOab || '—'}</p>
-                  </div>
-
-                  <div className="ed-field col-4 perfil-field-readonly">
-                    <span>Telefone</span>
-                    <p>{telefone || '—'}</p>
-                  </div>
-                </div>
-
-                <p className="perfil-readonly-note">
-                  <span className="material-symbols-outlined">info</span>
-                  Para alterar seus dados cadastrais, entre em contato com o administrador do sistema.
-                </p>
+                {editMode ? (
+                  <form className="ed-form" onSubmit={handleSalvarInfo}>
+                    {infoError && <div className="ed-error-banner">{infoError}</div>}
+                    <div className="ed-grid-12">
+                      <label className="ed-field col-6">
+                        <span>Nome Completo</span>
+                        <input
+                          type="text"
+                          value={editNome}
+                          onChange={e => setEditNome(e.target.value)}
+                          required
+                          autoFocus
+                        />
+                      </label>
+                      <label className="ed-field col-6">
+                        <span>E-mail</span>
+                        <input
+                          type="email"
+                          value={email}
+                          readOnly
+                          style={{ opacity: 0.6, cursor: 'not-allowed' }}
+                          title="O e-mail não pode ser alterado aqui"
+                        />
+                      </label>
+                      <label className="ed-field col-4">
+                        <span>Número OAB</span>
+                        <input
+                          type="text"
+                          value={editOab}
+                          onChange={e => setEditOab(e.target.value)}
+                        />
+                      </label>
+                      <label className="ed-field col-4">
+                        <span>Estado OAB</span>
+                        <input
+                          type="text"
+                          value={editEstadoOab}
+                          onChange={e => setEditEstadoOab(e.target.value)}
+                          maxLength={2}
+                          style={{ textTransform: 'uppercase' }}
+                        />
+                      </label>
+                      <label className="ed-field col-4">
+                        <span>Telefone</span>
+                        <input
+                          type="tel"
+                          value={editTelefone}
+                          onChange={e => setEditTelefone(e.target.value)}
+                          placeholder="(61) 99999-9999"
+                        />
+                      </label>
+                    </div>
+                    <div className="ed-form-actions" style={{ marginTop: '1.25rem' }}>
+                      <button
+                        type="button"
+                        className="discard-btn"
+                        onClick={cancelEdit}
+                        disabled={savingInfo}
+                      >
+                        Cancelar
+                      </button>
+                      <button className="submit-btn" type="submit" disabled={savingInfo}>
+                        {savingInfo
+                          ? <span className="material-symbols-outlined spin">progress_activity</span>
+                          : <span className="material-symbols-outlined">save</span>}
+                        {savingInfo ? 'Salvando...' : 'Salvar alterações'}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="ed-grid-12">
+                      <div className="ed-field col-6 perfil-field-readonly">
+                        <span>Nome Completo</span>
+                        <p>{nome || '—'}</p>
+                      </div>
+                      <div className="ed-field col-6 perfil-field-readonly">
+                        <span>E-mail</span>
+                        <p>{email || '—'}</p>
+                      </div>
+                      <div className="ed-field col-4 perfil-field-readonly">
+                        <span>Número OAB</span>
+                        <p>{oab || '—'}</p>
+                      </div>
+                      <div className="ed-field col-4 perfil-field-readonly">
+                        <span>Estado OAB</span>
+                        <p>{estadoOab || '—'}</p>
+                      </div>
+                      <div className="ed-field col-4 perfil-field-readonly">
+                        <span>Telefone</span>
+                        <p>{telefone || <span style={{ color: '#c9a227', fontStyle: 'italic' }}>Não informado — clique em Editar</span>}</p>
+                      </div>
+                    </div>
+                    {!telefone && (
+                      <p className="perfil-readonly-note" style={{ borderColor: 'rgba(201,162,39,0.3)', background: 'rgba(201,162,39,0.04)' }}>
+                        <span className="material-symbols-outlined" style={{ color: '#c9a227' }}>info</span>
+                        Preencha seu telefone para que suas petições incluam seus dados de contato.
+                      </p>
+                    )}
+                  </>
+                )}
               </section>
 
               {/* Alterar senha */}
@@ -299,7 +441,6 @@ const PerfilPage: React.FC = () => {
                         required
                       />
                     </label>
-
                     <label className="ed-field col-4">
                       <span>Nova Senha</span>
                       <input
@@ -311,7 +452,6 @@ const PerfilPage: React.FC = () => {
                         required
                       />
                     </label>
-
                     <label className="ed-field col-4">
                       <span>Confirmar Nova Senha</span>
                       <input
@@ -348,4 +488,3 @@ const PerfilPage: React.FC = () => {
 };
 
 export default PerfilPage;
-

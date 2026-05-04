@@ -324,6 +324,56 @@
   transform: translateY(-1px);
 }
 
+/* Botão Detalhes (link estilizado como botão) */
+.btn-detalhes {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1.5px solid #c9a227;
+  background: transparent;
+  color: #b8901e;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+.btn-detalhes:hover {
+  background: #c9a227;
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Botão ícone de delete na tabela */
+.btn-icon-delete {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: #f8d7da;
+  color: #721c24;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.btn-icon-delete:hover {
+  background: #dc3545;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.btn-icon-delete .material-symbols-outlined {
+  font-size: 1rem;
+}
+
 /* Foto Modal */
 .foto-modal-overlay {
   position: fixed;

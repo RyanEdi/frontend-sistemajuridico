@@ -49,11 +49,14 @@ const NovoCasoPage: React.FC = () => {
     }
     setSaving(true);
     setError(null);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
     try {
       const res = await fetch(apiUrl('/api/casos'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        signal: controller.signal,
         body: JSON.stringify({
           clienteId,
           tipo: tipoCaso,
@@ -69,9 +72,14 @@ const NovoCasoPage: React.FC = () => {
         return;
       }
       navigate('/casos');
-    } catch {
-      setError('Erro de conexão. Verifique se o servidor está ativo.');
+    } catch (err: any) {
+      if (err?.name === 'AbortError') {
+        setError('Tempo limite atingido. Verifique se o servidor está ativo.');
+      } else {
+        setError('Erro de conexão. Verifique se o servidor está ativo.');
+      }
     } finally {
+      clearTimeout(timer);
       setSaving(false);
     }
   };

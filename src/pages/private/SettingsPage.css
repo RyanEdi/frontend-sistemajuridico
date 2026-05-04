@@ -1,0 +1,125 @@
+/* SettingsPage-specific styles */
+
+.sg-success-banner {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 0.6rem;
+  padding: 0.85rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+.sg-account-links {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.sg-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border: 1.5px solid var(--surface-high);
+  border-radius: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.sg-link-btn:hover {
+  border-color: var(--gold);
+  background: var(--surface-low);
+}
+
+.sg-link-btn .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.sg-hint {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Toggle list */
+.sg-toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sg-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--surface-high);
+  cursor: default;
+  gap: 1rem;
+}
+
+.sg-toggle-row:last-child {
+  border-bottom: none;
+}
+
+.sg-toggle-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sg-toggle-label strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sg-toggle-label small {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* Toggle switch */
+.sg-toggle {
+  flex-shrink: 0;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--surface-high);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  outline: none;
+}
+
+.sg-toggle:focus-visible {
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.35);
+}
+
+.sg-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.sg-toggle.on {
+  background: var(--gold, #c9a227);
+}
+
+.sg-toggle.on::after {
+  transform: translateX(20px);
+}
