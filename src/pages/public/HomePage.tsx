@@ -416,7 +416,7 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="footer-bottom">
-            <p>© 2024 THE SOVEREIGN EDITORIAL. TODOS OS DIREITOS RESERVADOS.</p>
+            <p>© 2026 DIREITO & PROVENTO. TODOS OS DIREITOS RESERVADOS.</p>
             <div>
               <a href="#" aria-label="Compartilhar">
                 <span className="material-symbols-outlined">share</span>
