@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
+import './styles/NovoClientePage.css';
 
 const CPF_REGEX = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;

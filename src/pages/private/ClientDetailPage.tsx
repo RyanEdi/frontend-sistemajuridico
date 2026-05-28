@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PetitionPreviewModal from '../../components/PetitionPreviewModal';
 import { ClientData } from '../../types/ClientData';
@@ -9,7 +9,7 @@ import {
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
+import './styles/NovoClientePage.css';
 
 type Client = {
   id: string;
@@ -82,7 +82,7 @@ const ClientDetailPage: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
-    document.title = 'Detalhes do Cliente | Sovereign';
+    document.title = 'Detalhes do Cliente | Direito & Provento';
   }, []);
 
   useEffect(() => {
@@ -162,6 +162,131 @@ const ClientDetailPage: React.FC = () => {
     deleteDraftLocal(DRAFT_ID(id));
   };
 
+  const handleExportPdf = () => {
+    if (!client) return;
+
+    const calculo = client.calculoPrevidenciario;
+
+    const periodosHtml = calculo?.periodos && calculo.periodos.length > 0
+      ? `<table>
+          <thead>
+            <tr>
+              <th>Per�odo</th>
+              <th>Dias Brutos</th>
+              <th>Fator</th>
+              <th>Dias Convertidos</th>
+              <th>Fundamento</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${calculo.periodos.map((p, i) => `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${getTempoEmTexto(p.diasOriginais)}</td>
+                <td>${p.fator !== null ? p.fator.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}</td>
+                <td>${getTempoEmTexto(p.diasConvertidos)}</td>
+                <td>${p.fundamento || '--'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`
+      : '';
+
+    const calculoHtml = calculo
+      ? `<div class="section">
+          <h2>C�lculo Previdenci�rio</h2>
+          <p class="sub">Sexo: <strong>${client.sexoPrevidenciario || 'n�o informado'}</strong>${client.possuiDeficiencia && client.grauDeficienciaIfbra ? ` � PcD ${client.grauDeficienciaIfbra}` : ''}</p>
+          <div class="cards">
+            <div class="card">
+              <span>Tempo Bruto Total</span>
+              <strong>${getTempoEmTexto(calculo.diasOriginaisTotal)}</strong>
+              <small>${getTempoEmAnos(calculo.diasOriginaisTotal)} anos</small>
+            </div>
+            <div class="card">
+              <span>Tempo Ponderado Total</span>
+              <strong>${getTempoEmTexto(calculo.diasConvertidosTotal)}</strong>
+              <small>${getTempoEmAnos(calculo.diasConvertidosTotal)} anos</small>
+            </div>
+            <div class="card">
+              <span>Especial at� 13/11/2019</span>
+              <strong>${getTempoEmTexto(calculo.diasAteLimiteEspecial)}</strong>
+              <small>Trecho eleg�vel para convers�o</small>
+            </div>
+            <div class="card">
+              <span>Especial ap�s 13/11/2019</span>
+              <strong>${getTempoEmTexto(calculo.diasAposLimiteEspecial)}</strong>
+              <small>Fora do corte especial</small>
+            </div>
+          </div>
+          ${periodosHtml}
+        </div>`
+      : '';
+
+    const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Relat�rio � ${form.nomeAutor || client.name}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; padding: 2cm; }
+    h1 { font-size: 16pt; margin-bottom: 0.2cm; }
+    h2 { font-size: 13pt; margin: 0.8cm 0 0.4cm; border-bottom: 1px solid #ccc; padding-bottom: 0.2cm; }
+    .sub { font-size: 10pt; color: #555; margin-bottom: 0.5cm; }
+    .section { margin-bottom: 1cm; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3cm 0.6cm; margin-bottom: 0.5cm; }
+    .field { display: flex; flex-direction: column; }
+    .field span { font-size: 8pt; color: #666; text-transform: uppercase; letter-spacing: 0.05em; }
+    .field strong { font-size: 10pt; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4cm; margin-bottom: 0.5cm; }
+    .card { border: 1px solid #ddd; border-radius: 4px; padding: 0.4cm; }
+    .card span { font-size: 7.5pt; color: #666; text-transform: uppercase; display: block; margin-bottom: 0.15cm; }
+    .card strong { font-size: 11pt; display: block; }
+    .card small { font-size: 8.5pt; color: #888; }
+    table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+    th { background: #f0f0f0; text-align: left; padding: 0.2cm 0.3cm; border: 1px solid #ddd; font-size: 8.5pt; }
+    td { padding: 0.18cm 0.3cm; border: 1px solid #ddd; }
+    tr:nth-child(even) td { background: #fafafa; }
+    footer { margin-top: 1cm; font-size: 8pt; color: #aaa; text-align: center; border-top: 1px solid #eee; padding-top: 0.3cm; }
+    @media print { body { padding: 1.5cm; } }
+  </style>
+</head>
+<body>
+  <h1>${form.nomeAutor || client.name}</h1>
+  <p class="sub">Relat�rio gerado em ${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+
+  <div class="section">
+    <h2>Dados do Cliente</h2>
+    <div class="grid">
+      ${form.cpf ? `<div class="field"><span>CPF</span><strong>${form.cpf}</strong></div>` : ''}
+      ${form.rg ? `<div class="field"><span>RG</span><strong>${form.rg}</strong></div>` : ''}
+      ${form.estadoCivil ? `<div class="field"><span>Estado Civil</span><strong>${form.estadoCivil}</strong></div>` : ''}
+      ${form.profissao ? `<div class="field"><span>Profiss�o</span><strong>${form.profissao}</strong></div>` : ''}
+      ${form.emailAutor ? `<div class="field"><span>E-mail</span><strong>${form.emailAutor}</strong></div>` : ''}
+      ${form.cep ? `<div class="field"><span>CEP</span><strong>${form.cep}</strong></div>` : ''}
+      ${form.enderecoCompleto ? `<div class="field"><span>Endere�o</span><strong>${form.enderecoCompleto}</strong></div>` : ''}
+      ${form.cidadeUf ? `<div class="field"><span>Cidade / UF</span><strong>${form.cidadeUf}</strong></div>` : ''}
+      ${form.nomeAdvogado ? `<div class="field"><span>Advogado</span><strong>${form.nomeAdvogado}</strong></div>` : ''}
+      ${form.ufOab || form.numeroOab ? `<div class="field"><span>OAB</span><strong>${form.numeroOab || ''} / ${form.ufOab || ''}</strong></div>` : ''}
+      ${form.valorDanoMoral ? `<div class="field"><span>Valor Dano Moral</span><strong>R$ ${form.valorDanoMoral}</strong></div>` : ''}
+      ${form.valorDaCausa ? `<div class="field"><span>Valor da Causa</span><strong>R$ ${form.valorDaCausa}</strong></div>` : ''}
+    </div>
+  </div>
+
+  ${calculoHtml}
+
+  <footer>Direito &amp; Provento � direitoeprovento.com.br</footer>
+
+  <script>window.onload = () => { window.print(); }<\/script>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+    }
+  };
+
   if (loading) {
     return (
       <div className="ed-page">
@@ -180,7 +305,7 @@ const ClientDetailPage: React.FC = () => {
         <AppSidebar active="clientes" />
         <AppTopbar searchPlaceholder="Pesquisar clientes..." />
         <main className="ed-main">
-          <div className="ed-main-inner" style={{ paddingTop: '7rem' }}>Cliente não encontrado.</div>
+          <div className="ed-main-inner" style={{ paddingTop: '7rem' }}>Cliente n�o encontrado.</div>
         </main>
       </div>
     );
@@ -204,17 +329,17 @@ const ClientDetailPage: React.FC = () => {
               <span>{client.name}</span>
             </nav>
             <h2>{client.name}</h2>
-            <p>Geração de petição e cálculo previdenciário.</p>
+            <p>Gera��o de peti��o e c�lculo previdenci�rio.</p>
           </div>
 
           <div className="ed-form-shell">
             <div className="ed-blur-orb" aria-hidden="true" />
 
-            {/* Petição */}
+            {/* Peti��o */}
             <section className="ed-card">
               <div className="ed-card-head">
                 <span className="material-symbols-outlined">history_edu</span>
-                <h3>Gerar Petição</h3>
+                <h3>Gerar Peti��o</h3>
               </div>
 
               <div className="ed-grid-12">
@@ -251,7 +376,7 @@ const ClientDetailPage: React.FC = () => {
                   />
                 </label>
                 <label className="ed-field col-4">
-                  <span>Profissão</span>
+                  <span>Profiss�o</span>
                   <input
                     type="text"
                     value={form.profissao || ''}
@@ -275,7 +400,7 @@ const ClientDetailPage: React.FC = () => {
                   />
                 </label>
                 <label className="ed-field col-6">
-                  <span>Endereço Completo</span>
+                  <span>Endere�o Completo</span>
                   <input
                     type="text"
                     value={form.enderecoCompleto || ''}
@@ -291,7 +416,7 @@ const ClientDetailPage: React.FC = () => {
                   />
                 </label>
                 <label className="ed-field col-6">
-                  <span>Endereço do Escritório</span>
+                  <span>Endere�o do Escrit�rio</span>
                   <input
                     type="text"
                     value={form.enderecoEscritorio || ''}
@@ -299,7 +424,7 @@ const ClientDetailPage: React.FC = () => {
                   />
                 </label>
                 <label className="ed-field col-6">
-                  <span>Endereço DF/IPREV</span>
+                  <span>Endere�o DF/IPREV</span>
                   <input
                     type="text"
                     value={form.enderecoDfIprev || ''}
@@ -323,7 +448,7 @@ const ClientDetailPage: React.FC = () => {
                   />
                 </label>
                 <label className="ed-field col-4">
-                  <span>Nº OAB</span>
+                  <span>N� OAB</span>
                   <input
                     type="text"
                     value={form.numeroOab || ''}
@@ -361,26 +486,30 @@ const ClientDetailPage: React.FC = () => {
                     <span className="material-symbols-outlined">save</span>
                     Salvar Rascunho
                   </button>
+                  <button className="draft-btn" type="button" onClick={handleExportPdf}>
+                    <span className="material-symbols-outlined">picture_as_pdf</span>
+                    Exportar PDF
+                  </button>
                   <button className="submit-btn" type="button" onClick={handleGeneratePetition}>
                     <span className="material-symbols-outlined">preview</span>
-                    Gerar Petição
+                    Gerar Peti��o
                   </button>
                 </div>
               </div>
             </section>
 
-            {/* Cálculo Previdenciário */}
+            {/* C�lculo Previdenci�rio */}
             {calculo && (
               <section className="ed-card">
                 <div className="ed-card-head spread">
                   <div className="ed-card-head-left">
                     <span className="material-symbols-outlined">calculate</span>
-                    <h3>Cálculo Previdenciário</h3>
+                    <h3>C�lculo Previdenci�rio</h3>
                   </div>
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.05em' }}>
-                    Sexo: {client.sexoPrevidenciario || 'não informado'}
+                    Sexo: {client.sexoPrevidenciario || 'n�o informado'}
                     {client.possuiDeficiencia && client.grauDeficienciaIfbra
-                      ? ` · PcD ${client.grauDeficienciaIfbra}`
+                      ? ` � PcD ${client.grauDeficienciaIfbra}`
                       : ''}
                   </span>
                 </div>
@@ -397,12 +526,12 @@ const ClientDetailPage: React.FC = () => {
                     <small style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>{getTempoEmAnos(calculo.diasConvertidosTotal)} anos</small>
                   </div>
                   <div className="ed-field col-3" style={{ background: 'var(--surface-low)', borderRadius: '0.75rem', padding: '1rem' }}>
-                    <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Especial até 13/11/2019</span>
+                    <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Especial at� 13/11/2019</span>
                     <strong style={{ fontSize: '1.1rem', display: 'block', marginTop: '0.3rem' }}>{getTempoEmTexto(calculo.diasAteLimiteEspecial)}</strong>
-                    <small style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>Trecho elegível para conversão</small>
+                    <small style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>Trecho eleg�vel para convers�o</small>
                   </div>
                   <div className="ed-field col-3" style={{ background: 'var(--surface-low)', borderRadius: '0.75rem', padding: '1rem' }}>
-                    <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Especial após 13/11/2019</span>
+                    <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted)', fontWeight: 700 }}>Especial ap�s 13/11/2019</span>
                     <strong style={{ fontSize: '1.1rem', display: 'block', marginTop: '0.3rem' }}>{getTempoEmTexto(calculo.diasAposLimiteEspecial)}</strong>
                     <small style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>Fora do corte especial</small>
                   </div>
@@ -413,7 +542,7 @@ const ClientDetailPage: React.FC = () => {
                     <table className="admin-table">
                       <thead>
                         <tr>
-                          <th>Período</th>
+                          <th>Per�odo</th>
                           <th>Dias Brutos</th>
                           <th>Fator</th>
                           <th>Dias Convertidos</th>

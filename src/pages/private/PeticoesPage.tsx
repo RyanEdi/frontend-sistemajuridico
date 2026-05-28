@@ -1,10 +1,10 @@
-ï»¿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
-import './DashboardPage.css';
+import './styles/NovoClientePage.css';
+import './styles/DashboardPage.css';
 
 type StatusPeticao = 'rascunho' | 'enviada' | 'deferida' | 'indeferida';
 
@@ -33,7 +33,7 @@ const STATUS_CLASS: Record<StatusPeticao, string> = {
 };
 
 const fmtDate = (s?: string | null) => {
-  if (!s) return 'â€”';
+  if (!s) return '—';
   const d = new Date(s);
   if (isNaN(d.getTime())) return s;
   return d.toLocaleDateString('pt-BR');
@@ -48,14 +48,14 @@ const PeticoesPage: React.FC = () => {
   const [bannerDismissed, setBannerDismissed] = useState(false);
 
   useEffect(() => {
-    document.title = 'PetiÃ§Ãµes | Sovereign';
+    document.title = 'Petições | Direito & Provento';
     fetch(apiUrl('/api/peticoes'), { credentials: 'include' })
       .then(r => r.json())
       .then(data => setPeticoes(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
 
-    // Verifica se o perfil estÃ¡ incompleto (telefone ou OAB nÃ£o preenchidos)
+    // Verifica se o perfil está incompleto (telefone ou OAB não preenchidos)
     fetch(apiUrl('/api/auth/perfil'), { credentials: 'include' })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
@@ -83,7 +83,7 @@ const PeticoesPage: React.FC = () => {
     <div className="ed-page">
       <AppSidebar active="peticoes" />
       <AppTopbar
-        searchPlaceholder="Pesquisar petiÃ§Ãµes..."
+        searchPlaceholder="Pesquisar petições..."
         searchValue={search}
         onSearchChange={setSearch}
       />
@@ -94,17 +94,17 @@ const PeticoesPage: React.FC = () => {
             <nav className="ed-breadcrumb">
               <Link to="/dashboard">Dashboard</Link>
               <span>/</span>
-              <span>PetiÃ§Ãµes</span>
+              <span>Petições</span>
             </nav>
-            <h2>PetiÃ§Ãµes</h2>
-            <p>Crie e gerencie petiÃ§Ãµes previdenciÃ¡rias dos seus clientes.</p>
+            <h2>Petições</h2>
+            <p>Crie e gerencie petições previdenciárias dos seus clientes.</p>
           </div>
 
           {perfilIncompleto && !bannerDismissed && (
             <div className="pet-perfil-banner">
               <span className="material-symbols-outlined">warning</span>
               <span>
-                Seu perfil estÃ¡ incompleto. Preencha seu <strong>telefone</strong> e dados da <strong>OAB</strong> para que as petiÃ§Ãµes incluam seus dados de contato.
+                Seu perfil está incompleto. Preencha seu <strong>telefone</strong> e dados da <strong>OAB</strong> para que as petições incluam seus dados de contato.
               </span>
               <Link to="/perfil" className="pet-perfil-banner-link">Completar perfil</Link>
               <button
@@ -134,7 +134,7 @@ const PeticoesPage: React.FC = () => {
               </div>
               <Link to="/peticoes/nova" className="submit-btn">
                 <span className="material-symbols-outlined">add</span>
-                Nova PetiÃ§Ã£o
+                Nova Petição
               </Link>
             </div>
 
@@ -149,19 +149,19 @@ const PeticoesPage: React.FC = () => {
 
               {loading ? (
                 <div style={{ padding: '2rem 0', textAlign: 'center', color: '#888' }}>
-                  Carregando petiÃ§Ãµes...
+                  Carregando petições...
                 </div>
               ) : filtradas.length === 0 ? (
                 <div style={{ padding: '3rem 0', textAlign: 'center' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: '#c8d2e2', display: 'block', marginBottom: '0.75rem' }}>
                     gavel
                   </span>
-                  <p className="db-empty">Nenhuma petiÃ§Ã£o encontrada.</p>
+                  <p className="db-empty">Nenhuma petição encontrada.</p>
                 </div>
               ) : (
                 filtradas.map(p => (
                   <div className="caso-table-row" key={p.id} style={{ gridTemplateColumns: '1fr 1fr 110px 120px 44px' }}>
-                    <span>{p.cliente || 'â€”'}</span>
+                    <span>{p.cliente || '—'}</span>
                     <span>{p.tipo}</span>
                     <span>{fmtDate(p.dataDocumento || p.createdAt)}</span>
                     <span>

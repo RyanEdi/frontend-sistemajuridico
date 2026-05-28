@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './HomePage.css';
+import './styles/HomePage.css';
 import UniversalTopbar, {
   UniversalTopbarLink,
 } from '../../components/UniversalTopbar';
@@ -22,6 +22,7 @@ type Plan = {
   price: string;
   period?: string;
   cta: string;
+  link: string;
   featured?: boolean;
   badge?: string;
   icon: 'check_circle' | 'verified';
@@ -52,15 +53,34 @@ const insights: Insight[] = [
     summary:
       'Entenda os próximos passos do julgamento que pode redefinir milhões de benefícios.',
   },
+  {
+    category: 'Constitucional',
+    title: 'O novo marco regulatório das emendas impositivas no STF.',
+    summary:
+      'Como o tribunal está delineando os limites entre o Legislativo e o Executivo nas alocações orçamentárias.',
+  },
+  {
+    category: 'Criminal',
+    title: 'Crimes tributários e responsabilidade dos sócios: tese revisada.',
+    summary:
+      'O impacto da nova posição do STJ sobre a desconsideração da personalidade jurídica em matéria penal.',
+  },
+  {
+    category: 'Ambiental',
+    title: 'Regularização fundiária e licenciamento ambiental simplificado.',
+    summary:
+      'Como as recentes alterações legislativas afetam projetos de grande porte e suas obrigações ambientais.',
+  },
 ];
 
 const plans: Plan[] = [
   {
     name: 'Básico',
     subtitle: 'Essencial para profissionais independentes.',
-    price: '€49',
+    price: 'R$ 89',
     period: '/mês',
     cta: 'COMEÇAR AGORA',
+    link: 'https://www.asaas.com/c/poxzqhmiqykq0qiq',
     icon: 'check_circle',
     features: [
       { text: 'Acesso à Jurisprudência Básica' },
@@ -71,28 +91,31 @@ const plans: Plan[] = [
   {
     name: 'Profissional',
     subtitle: 'O padrão ouro para escritórios modernos.',
-    price: '€129',
+    price: 'R$ 199',
     period: '/mês',
     cta: 'ADQUIRIR PLANO',
+    link: 'https://www.asaas.com/c/zcgup7z0ibl20slc',
     featured: true,
     badge: 'MAIS POPULAR',
     icon: 'verified',
     features: [
       { text: 'Base de Dados Integral (Ilimitada)', highlighted: true },
       { text: 'Análise Preditiva de Sentenças', highlighted: true },
-      { text: 'Gestão de Equipa (Até 5 utilizadores)', highlighted: true },
+      { text: 'Gestão de Equipe (Até 5 usuários)', highlighted: true },
       { text: 'Suporte Prioritário 24/7', highlighted: true },
     ],
   },
   {
     name: 'Enterprise',
     subtitle: 'Soluções customizadas para grandes firmas.',
-    price: 'Sob Consulta',
-    cta: 'CONTACTAR VENDAS',
+    price: 'R$ 499',
+    period: '/mês',
+    cta: 'FALAR COM VENDAS',
+    link: '/cadastro',
     icon: 'check_circle',
     features: [
       { text: 'API de Integração Direta' },
-      { text: 'Utilizadores Ilimitados' },
+      { text: 'Usuários Ilimitados' },
       { text: 'Account Manager Dedicado' },
     ],
   },
@@ -191,39 +214,37 @@ const HomePage: React.FC = () => {
         </section>
 
         <section className="insights-section">
-          <div className="insights-header">
-            <div>
-              <h2>Destaques Editoriais</h2>
-              <p>
-                Análises profundas sobre as mudanças mais significativas nos
-                tribunais superiores.
-              </p>
-            </div>
-            <a href="#">Ver arquivo completo</a>
-          </div>
-
-          <div className="insights-grid">
-            <article className="main-insight">
-              <img
-                alt="Martelo sobre documento jurídico"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm5B3WV8TBlF1fulGltAatUBmbSqdICLywpM9q_2KVhdNxxu7hse_Vx8ylHeWaHTB3kIcURAhu3e-LHRzht8OvlQfSosNzYapvE2bHBiQiH_fX42buKKk_PtI-VFwpRhstghOYzgROdmdn4sYLTJlX4cv-5gaOf_ebzthSzDQlv0e4FiomIJ_7A9K2f1KI7Pya73iDBx0foGhmLN0T8RFPXVbUEOcKKhbyDguwlxFlunKg5oWkLMvEo5dPmZYY1uEP3Ksb6Evb"
-              />
-              <div className="main-insight-overlay">
-                <span>SUPREMO TRIBUNAL</span>
-                <h3>
-                  O impacto da nova tese sobre crimes tributários na governança
-                  corporativa.
-                </h3>
-                <p>14 Out, 2023 • Por Dr. Arnaldo Silva</p>
+          <div className="insights-inner">
+            <div className="insights-header">
+              <div className="insights-header-left">
+                <span className="insights-pill">EDITORIAL</span>
+                <h2>Destaques <em>Jurídicos</em></h2>
+                <p>
+                  Análises aprofundadas sobre as mudanças mais significativas
+                  nos tribunais superiores.
+                </p>
               </div>
-            </article>
+              <a href="#" className="insights-archive-link">
+                Ver arquivo completo
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </a>
+            </div>
 
-            <div className="side-insights">
-              {insights.map(item => (
-                <article className="side-card" key={item.title}>
-                  <span>{item.category}</span>
-                  <h4>{item.title}</h4>
+            <div className="insights-grid">
+              {insights.map((item, i) => (
+                <article className="insight-card" key={item.title}>
+                  <div className="insight-card-top">
+                    <span className="insight-index">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="insight-category">{item.category}</span>
+                  </div>
+                  <h3>{item.title}</h3>
                   <p>{item.summary}</p>
+                  <a href="#" className="insight-read-more">
+                    Ler análise
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </a>
                 </article>
               ))}
             </div>
@@ -253,7 +274,7 @@ const HomePage: React.FC = () => {
             </article>
             <article className="platform-feature">
               <span className="material-symbols-outlined">calculate</span>
-              <h3>Calculadora PCD</h3>
+              <h3>Direito &amp; Provento</h3>
               <p>
                 Cálculos previdenciários precisos para pessoas com deficiência,
                 com base na legislação vigente e tabelas atualizadas.
@@ -337,7 +358,9 @@ const HomePage: React.FC = () => {
                   ))}
                 </ul>
                 <Link
-                  to="/cadastro"
+                  to={plan.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`home-card-cta ${plan.featured ? 'featured-cta' : ''}`}
                 >
                   {plan.cta}
@@ -383,7 +406,7 @@ const HomePage: React.FC = () => {
         <footer className="home-footer">
           <div className="footer-grid">
             <div>
-              <h4>The Sovereign</h4>
+              <h4>Direito &amp; Provento</h4>
               <p>
                 A excelência em curadoria jurídica para os magistrados e
                 advogados que moldam o futuro do país.
@@ -416,7 +439,7 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="footer-bottom">
-            <p>© 2024 THE SOVEREIGN EDITORIAL. TODOS OS DIREITOS RESERVADOS.</p>
+            <p>© 2026 DIREITO &amp; PROVENTO. TODOS OS DIREITOS RESERVADOS.</p>
             <div>
               <a href="#" aria-label="Compartilhar">
                 <span className="material-symbols-outlined">share</span>

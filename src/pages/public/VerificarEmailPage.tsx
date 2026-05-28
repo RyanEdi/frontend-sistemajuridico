@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
-import './AuthPages.css';
+import './styles/AuthPages.css';
 
 const CODE_LENGTH = 6;
 
@@ -22,7 +22,7 @@ const VerificarEmailPage: React.FC = () => {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    document.title = 'Verificar E-mail | Calculadora PCD';
+    document.title = 'Verificar E-mail | Direito & Provento';
   }, []);
 
   useEffect(() => {

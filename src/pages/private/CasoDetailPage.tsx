@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
+import './styles/NovoClientePage.css';
 
 type StatusCaso = 'ativo' | 'em_andamento' | 'concluido' | 'suspenso';
 
@@ -58,7 +58,7 @@ const CasoDetailPage: React.FC = () => {
   const [savedMsg, setSavedMsg] = useState('');
 
   useEffect(() => {
-    document.title = `Caso | Sovereign`;
+    document.title = `Caso | Direito & Provento`;
     fetch(apiUrl(`/api/casos/${id}`), { credentials: 'include' })
       .then(async r => {
         if (r.status === 404) throw new Error('Caso não encontrado.');

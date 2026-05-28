@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
-import './AuthPages.css';
+import './styles/AuthPages.css';
 
 const RedefinirSenhaPage: React.FC = () => {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const RedefinirSenhaPage: React.FC = () => {
   };
 
   useEffect(() => {
-    document.title = 'Redefinir Senha | Calculadora PCD';
+    document.title = 'Redefinir Senha | Direito & Provento';
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

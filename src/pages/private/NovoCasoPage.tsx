@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
+import './styles/NovoClientePage.css';
 
 const TIPOS_CASO = [
   'Aposentadoria por Tempo de Contribuição',
@@ -30,7 +30,7 @@ const NovoCasoPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = 'Novo Caso | Sovereign';
+    document.title = 'Novo Caso | Direito & Provento';
     fetch(apiUrl('/api/clients'), { credentials: 'include' })
       .then(r => r.json())
       .then(data => setClientes(Array.isArray(data) ? data : []))

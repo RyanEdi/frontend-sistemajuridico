@@ -22,7 +22,7 @@ type UniversalTopbarProps = {
 };
 
 const UniversalTopbar: React.FC<UniversalTopbarProps> = ({
-  brandTitle = 'The Sovereign',
+  brandTitle = 'Direito & Provento',
   brandSubtitle = 'Editorial Jurist',
   links,
   activeLinkLabel,

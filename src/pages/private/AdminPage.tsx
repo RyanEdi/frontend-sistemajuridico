@@ -4,8 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './AdminPage.css';
-import './NovoClientePage.css';
+import './styles/AdminPage.css';
+import './styles/NovoClientePage.css';
 
 interface Usuario {
   id: number;
@@ -44,7 +44,7 @@ const AdminPage: React.FC = () => {
   const [fotoModalId, setFotoModalId] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = 'Painel Admin | Calculadora PCD';
+    document.title = 'Painel Admin | Direito & Provento';
   }, []);
 
   const carregarUsuarios = async () => {

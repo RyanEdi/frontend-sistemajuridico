@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
-import './AuthPages.css';
+import './styles/AuthPages.css';
 
 const formatCpf = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -55,11 +55,12 @@ const CadastroPage: React.FC = () => {
   });
   const [fotoOab, setFotoOab] = useState<File | null>(null);
   const [fotoOabPreview, setFotoOabPreview] = useState<string | null>(null);
+  const [lgpdConsent, setLgpdConsent] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    document.title = 'Cadastro | Calculadora PCD';
+    document.title = 'Cadastro | Direito & Provento';
   }, []);
 
   const updateField = (field: keyof typeof formData, value: string) => {
@@ -89,6 +90,12 @@ const CadastroPage: React.FC = () => {
     e.preventDefault();
     setErrorMessage('');
     setSubmitting(true);
+
+    if (!lgpdConsent) {
+      setErrorMessage('Você deve aceitar a Política de Privacidade e os Termos de Uso para se cadastrar.');
+      setSubmitting(false);
+      return;
+    }
 
     // Validar campos OAB: se número informado, exige estado e foto
     if (formData.numeroOab && !formData.estadoOab) {
@@ -363,13 +370,27 @@ const CadastroPage: React.FC = () => {
               <button
                 className="btn-submit"
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || !lgpdConsent}
               >
                 {submitting ? 'Cadastrando...' : 'Cadastrar'}
               </button>
 
               <div className="form-footer">
-                <span className="checkbox-container"></span>
+                <span className="checkbox-container">
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', cursor: 'pointer', lineHeight: '1.4' }}>
+                    <input
+                      type="checkbox"
+                      checked={lgpdConsent}
+                      onChange={e => setLgpdConsent(e.target.checked)}
+                      style={{ marginTop: '2px', flexShrink: 0 }}
+                    />
+                    Declaro que li e aceito a{' '}
+                    <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-pink, #e91e8c)' }}>Política de Privacidade</a>
+                    {' '}e os{' '}
+                    <a href="/termos-de-uso" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-pink, #e91e8c)' }}>Termos de Uso</a>,
+                    consentindo com o tratamento dos meus dados pessoais nos termos da LGPD.
+                  </label>
+                </span>
                 <Link
                   to="/loginpage"
                   className="create-account"

@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
-import './SettingsPage.css';
+import './styles/NovoClientePage.css';
+import './styles/SettingsPage.css';
 
 const SettingsPage: React.FC = () => {
   const { user } = useAuth();
@@ -22,7 +22,7 @@ const SettingsPage: React.FC = () => {
   const [notifPrazos, setNotifPrazos] = useState(true);
 
   useEffect(() => {
-    document.title = 'Configurações | Sovereign';
+    document.title = 'Configurações | Direito & Provento';
 
     const saved = localStorage.getItem('sg_settings');
     if (saved) {

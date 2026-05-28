@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
+import './styles/NovoClientePage.css';
 
 type EventoTipo = 'audiencia' | 'prazo' | 'pericia' | 'documento' | 'reuniao' | 'outro';
 
@@ -31,7 +31,7 @@ const NovoEventoPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = 'Novo Evento | Sovereign';
+    document.title = 'Novo Evento | Direito & Provento';
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {

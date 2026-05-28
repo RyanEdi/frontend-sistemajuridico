@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
-import './LicencaPremioPage.css';
+import './styles/NovoClientePage.css';
+import './styles/LicencaPremioPage.css';
 
 const parseCurrency = (value: string): number => {
   const clean = value.replace(/\./g, '').replace(',', '.');
@@ -33,7 +33,7 @@ const LicencaPremioPage: React.FC = () => {
   const [salario, setSalario] = useState('');
 
   useEffect(() => {
-    document.title = 'Licença Prêmio | Sovereign';
+    document.title = 'Licença Prêmio | Direito & Provento';
   }, []);
 
   const mesesNum = parseInt(meses, 10);

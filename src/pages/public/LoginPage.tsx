@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { apiUrl } from '../../config/api';
-import './AuthPages.css';
+import './styles/AuthPages.css';
 
 const formatCpf = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Login | Calculadora PCD';
+    document.title = 'Login | Direito & Provento';
   }, []);
 
   useEffect(() => {

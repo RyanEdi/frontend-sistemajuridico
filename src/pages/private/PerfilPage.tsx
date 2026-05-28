@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
+import './styles/NovoClientePage.css';
 
 const PerfilPage: React.FC = () => {
   const { user, updateFotoUrl } = useAuth();
@@ -40,7 +40,7 @@ const PerfilPage: React.FC = () => {
   const [pwdError, setPwdError] = useState('');
 
   useEffect(() => {
-    document.title = 'Meu Perfil | Sovereign';
+    document.title = 'Meu Perfil | Direito & Provento';
   }, []);
 
   useEffect(() => {

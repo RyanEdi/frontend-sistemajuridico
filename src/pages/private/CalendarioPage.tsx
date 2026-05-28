@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
-import './DashboardPage.css';
+import './styles/NovoClientePage.css';
+import './styles/DashboardPage.css';
 
 type EventoTipo = 'audiencia' | 'prazo' | 'pericia' | 'documento' | 'reuniao' | 'outro';
 
@@ -61,7 +61,7 @@ const CalendarioPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = 'Calendário | Sovereign';
+    document.title = 'Calendário | Direito & Provento';
     fetch(apiUrl('/api/eventos'), { credentials: 'include' })
       .then(r => r.json())
       .then(data => setEventos(Array.isArray(data) ? data : []))

@@ -12,6 +12,7 @@ type User = {
   id: number;
   isAdmin: boolean;
   name: string;
+  email?: string;
 };
 
 type AuthContextType = {
@@ -55,6 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           id: Number(data.usuarioId),
           isAdmin: Boolean(data.isAdmin),
           name: String(data.nomeCompleto || '').trim(),
+          email: String(data.email || '').trim(),
         });
         // Busca a foto do perfil
         try {

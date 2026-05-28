@@ -4,9 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
-import './DashboardPage.css';
-import './AdminPage.css';
+import './styles/NovoClientePage.css';
+import './styles/DashboardPage.css';
+import './styles/AdminPage.css';
 // Formata CPF no padrão brasileiro
 const formatCpf = (cpf: string) => {
   if (!cpf) return '-';
@@ -48,7 +48,7 @@ const ClientesPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    document.title = 'Clientes | Sovereign';
+    document.title = 'Clientes | Direito & Provento';
   }, []);
 
   useEffect(() => {

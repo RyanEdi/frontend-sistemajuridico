@@ -4,8 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './DashboardPage.css';
-import './NovoClientePage.css';
+import './styles/DashboardPage.css';
+import './styles/NovoClientePage.css';
 
 type Client = {
   id: string;
@@ -23,7 +23,7 @@ const DashboardPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    document.title = 'Dashboard | Sovereign';
+    document.title = 'Dashboard | Direito & Provento';
 
     const fetchAll = async () => {
       try {

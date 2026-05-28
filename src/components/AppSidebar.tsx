@@ -32,8 +32,8 @@ const AppSidebar: React.FC<Props> = ({ active }) => {
       <div className="ed-sidebar-overlay" onClick={closeSidebar} aria-hidden="true" />
       <aside className="ed-sidebar">
       <div className="ed-brand-wrap">
-        <h1 className="ed-brand">Sovereign</h1>
-        <p className="ed-brand-sub">Editorial Juridico</p>
+        <h1 className="ed-brand">Direito &amp; Provento</h1>
+        <p className="ed-brand-sub">Sistema Jurídico</p>
       </div>
 
       <nav className="ed-sidebar-nav">

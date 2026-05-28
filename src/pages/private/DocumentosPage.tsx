@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
-import './DashboardPage.css';
+import './styles/NovoClientePage.css';
+import './styles/DashboardPage.css';
 
 type TipoDoc = 'laudo' | 'procuracao' | 'identidade' | 'outros';
 
@@ -82,7 +82,7 @@ const DocumentosPage: React.FC = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    document.title = 'Documentos | Sovereign';
+    document.title = 'Documentos | Direito & Provento';
   }, []);
 
   const processFiles = useCallback((files: FileList | File[]) => {

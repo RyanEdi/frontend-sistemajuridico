@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
-import './DashboardPage.css';
+import './styles/NovoClientePage.css';
+import './styles/DashboardPage.css';
 
 type StatusCaso = 'ativo' | 'em_andamento' | 'concluido' | 'suspenso';
 
@@ -46,7 +46,7 @@ const CasosPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = 'Casos | Sovereign';
+    document.title = 'Casos | Direito & Provento';
     fetch(apiUrl('/api/casos'), { credentials: 'include' })
       .then(r => r.json())
       .then(data => setCasos(Array.isArray(data) ? data : []))

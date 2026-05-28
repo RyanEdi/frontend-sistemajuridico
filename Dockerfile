@@ -2,7 +2,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
-COPY tsconfig.json vite.config.ts vite-env.d.ts ./
+COPY tsconfig.json vite.config.ts vite-env.d.ts index.html ./
 COPY src/ src/
 COPY public/ public/
 ARG VITE_API_BASE=http://localhost:3333

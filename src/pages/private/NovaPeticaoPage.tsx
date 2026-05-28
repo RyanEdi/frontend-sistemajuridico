@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
+import './styles/NovoClientePage.css';
 
 const TIPOS_PETICAO = [
   'Concessão — Aposentadoria por Tempo de Contribuição',
@@ -35,7 +35,7 @@ const NovaPeticaoPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = 'Nova Petição | Sovereign';
+    document.title = 'Nova Petição | Direito & Provento';
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {

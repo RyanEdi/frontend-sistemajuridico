@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { apiUrl } from '../../config/api';
 import AppSidebar from '../../components/AppSidebar';
 import AppTopbar from '../../components/AppTopbar';
-import './NovoClientePage.css';
+import './styles/NovoClientePage.css';
 
 const onlyDigits = (value: string) => value.replace(/\D/g, '');
 
@@ -102,7 +102,7 @@ const ClienteDetalhesPage: React.FC = () => {
   const [observacoes, setObservacoes] = useState('');
 
   useEffect(() => {
-    document.title = 'Detalhes do Cliente | Sovereign';
+    document.title = 'Detalhes do Cliente | Direito & Provento';
   }, []);
 
   useEffect(() => {
