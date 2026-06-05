@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://direitoeprovento.com.br/sitemap.xml

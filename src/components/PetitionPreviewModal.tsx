@@ -14,14 +14,14 @@ const todayBR = () =>
   new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
 // ──────────────────────────────────────────────────────────
-// Renders petition text with legal-document HTML markup.
+// Renderiza o texto da peticao com marcacao HTML de documento juridico.
 // ──────────────────────────────────────────────────────────
 const SECTION_RE = /^([IVX]+\s*[–—-]\s*|[IVX]+\.[IVX]+\s*[–—-]\s*|\d+\.\s+(?:DOS?|DA[S]?\s|DO\s))/i;
 
 function renderPetitionContent(c: ClientData): React.ReactNode[] {
   const paragraphs: React.ReactNode[] = [];
 
-  // ── Helper: inline formatting (placeholders in brackets → italic amber)
+  // ── Funcao auxiliar: formatacao em linha (placeholders entre colchetes -> italico amarelo)
   const fmt = (text: string): React.ReactNode[] => {
     const parts = text.split(/(\[[^\]]+\])/g);
     return parts.map((p, i) =>
@@ -31,7 +31,7 @@ function renderPetitionContent(c: ClientData): React.ReactNode[] {
     );
   };
 
-  // ── 1. HEADER (centered, bold)
+  // ── 1. CABECALHO (centralizado e em negrito)
   paragraphs.push(
     <p key="header" style={{
       textAlign: 'center',
@@ -47,7 +47,7 @@ function renderPetitionContent(c: ClientData): React.ReactNode[] {
     </p>
   );
 
-  // ── 2. QUALIFICAÇÃO DO AUTOR (first indent paragraph)
+  // ── 2. QUALIFICACAO DO AUTOR (primeiro paragrafo com recuo)
   paragraphs.push(
     <p key="qualif" style={{ textIndent: '3cm', textAlign: 'justify', marginBottom: '1.2em' }}>
       <strong>{f(c.nomeAutor, '[NOME COMPLETO DO AUTOR]').toUpperCase()}</strong>
@@ -63,7 +63,7 @@ function renderPetitionContent(c: ClientData): React.ReactNode[] {
     </p>
   );
 
-  // ── 3. ACTION NAME (centered, bold, spaced)
+  // ── 3. NOME DA ACAO (centralizado, em negrito e com espacamento)
   paragraphs.push(
     <p key="acao" style={{
       textAlign: 'center',

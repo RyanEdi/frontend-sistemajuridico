@@ -249,6 +249,11 @@
   color: #721c24;
 }
 
+.status-badge.pagamento-pendente {
+  background: #ffe8cc;
+  color: #8a4b08;
+}
+
 /* Action Buttons */
 .td-acoes {
   white-space: nowrap;
@@ -281,6 +286,16 @@
 
 .btn-aprovar:hover {
   background: #218838;
+  transform: translateY(-1px);
+}
+
+.btn-pagamento {
+  background: #ff922b;
+  color: #fff;
+}
+
+.btn-pagamento:hover {
+  background: #e67700;
   transform: translateY(-1px);
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { apiUrl } from '../../config/api';
 import './styles/AuthPages.css';
 
@@ -42,8 +42,16 @@ const ESTADOS_BR = [
   'TO',
 ];
 
+const PLAN_LABELS: Record<string, string> = {
+  basico: 'Básico — R$ 89/mês',
+  profissional: 'Profissional — R$ 199/mês',
+  enterprise: 'Enterprise — R$ 499/mês',
+};
+
 const CadastroPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const plano = searchParams.get('plano') || '';
   const [formData, setFormData] = useState({
     nomeCompleto: '',
     email: '',
@@ -97,19 +105,6 @@ const CadastroPage: React.FC = () => {
       return;
     }
 
-    // Validar campos OAB: se número informado, exige estado e foto
-    if (formData.numeroOab && !formData.estadoOab) {
-      setErrorMessage('Informe o estado da OAB.');
-      setSubmitting(false);
-      return;
-    }
-
-    if (formData.numeroOab && !fotoOab) {
-      setErrorMessage('Envie a foto da carteira OAB para verificação.');
-      setSubmitting(false);
-      return;
-    }
-
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('nome_completo', formData.nomeCompleto);
@@ -136,7 +131,8 @@ const CadastroPage: React.FC = () => {
       }
 
       if (response.ok) {
-        const redirectTo = data?.redirectTo || (data?.id ? `/verificar-email?id=${data.id}` : '/loginpage?cadastrado=true');
+        const base = data?.redirectTo || (data?.id ? `/verificar-email?id=${data.id}` : '/loginpage?cadastrado=true');
+        const redirectTo = plano ? `${base}&plano=${plano}` : base;
         navigate(redirectTo, { replace: true });
         return;
       }
@@ -165,6 +161,11 @@ const CadastroPage: React.FC = () => {
         <div className="login-side">
           <div className="login-form-wrapper">
             <form id="cadastro-form" onSubmit={handleSubmit}>
+              {plano && PLAN_LABELS[plano] && (
+                <div className="login-accept-box" style={{ marginBottom: '12px' }}>
+                  ✓ Plano selecionado: <strong>{PLAN_LABELS[plano]}</strong>
+                </div>
+              )}
               {errorMessage && (
                 <div className="login-error-box">{errorMessage}</div>
               )}
@@ -291,9 +292,9 @@ const CadastroPage: React.FC = () => {
                 </div>
                 <div
                   className="input-field"
-                  style={{ width: '80px', marginBottom: '6px' }}
+                  style={{ width: '90px', flexShrink: 0, marginBottom: '6px' }}
                 >
-                  <label>OAB/UF</label>
+                  <label>OAB/UF <span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#8a96a8' }}>(opcional)</span></label>
                   <select
                     value={formData.estadoOab}
                     onChange={e => updateField('estadoOab', e.target.value)}
@@ -320,7 +321,7 @@ const CadastroPage: React.FC = () => {
 
               {formData.numeroOab && (
               <div className="input-field" style={{ marginBottom: '6px' }}>
-                <label>Foto da Carteira OAB</label>
+                <label>Foto da Carteira OAB <span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#8a96a8' }}>(opcional)</span></label>
                 <input
                   type="file"
                   accept="image/*"
@@ -376,24 +377,37 @@ const CadastroPage: React.FC = () => {
               </button>
 
               <div className="form-footer">
-                <span className="checkbox-container">
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', cursor: 'pointer', lineHeight: '1.4' }}>
-                    <input
-                      type="checkbox"
-                      checked={lgpdConsent}
-                      onChange={e => setLgpdConsent(e.target.checked)}
-                      style={{ marginTop: '2px', flexShrink: 0 }}
-                    />
+                <label className="checkbox-container checkbox-container--consent">
+                  <input
+                    type="checkbox"
+                    checked={lgpdConsent}
+                    onChange={e => setLgpdConsent(e.target.checked)}
+                  />
+                  <span className="consent-text">
                     Declaro que li e aceito a{' '}
-                    <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-pink, #e91e8c)' }}>Política de Privacidade</a>
-                    {' '}e os{' '}
-                    <a href="/termos-de-uso" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-pink, #e91e8c)' }}>Termos de Uso</a>,
-                    consentindo com o tratamento dos meus dados pessoais nos termos da LGPD.
-                  </label>
-                </span>
+                    <a
+                      href="/politica-de-privacidade"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="consent-link"
+                    >
+                      Política de Privacidade
+                    </a>{' '}
+                    e os{' '}
+                    <a
+                      href="/termos-de-uso"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="consent-link"
+                    >
+                      Termos de Uso
+                    </a>
+                    , consentindo com o tratamento dos meus dados pessoais nos termos da LGPD.
+                  </span>
+                </label>
                 <Link
                   to="/loginpage"
-                  className="create-account"
+                  className="create-account create-account--return"
                   onClick={() => {
                     localStorage.removeItem('user');
                     localStorage.removeItem('token');

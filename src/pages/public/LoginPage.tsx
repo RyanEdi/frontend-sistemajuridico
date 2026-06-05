@@ -134,13 +134,13 @@ const LoginPage: React.FC = () => {
 
       const data = await response.json().catch(() => null);
 
-      // Handle verification needed
+      // Trata o caso em que a verificacao de e-mail ainda e necessaria
       if (data?.action === 'verify-email') {
         navigate(`/verificar-email?id=${data.userId}`, { replace: true });
         return;
       }
 
-      // Handle successful login
+      // Trata o login concluido com sucesso
       if (data?.success === true) {
         setSuccessMessage('Login realizado com sucesso!');
         await login();
@@ -151,7 +151,7 @@ const LoginPage: React.FC = () => {
         return;
       }
 
-      // Handle error responses
+      // Trata respostas de erro vindas da API
       if (!response.ok && data?.message) {
         setErrorMessage(data.message);
         return;

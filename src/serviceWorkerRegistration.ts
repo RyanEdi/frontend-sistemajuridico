@@ -7,7 +7,7 @@ const isLocalhost = Boolean(
 );
 
 export function register() {
-  // Só registra o Service Worker em produção (não em desenvolvimento)
+  // So registra o trabalhador de servico em producao (nao em desenvolvimento)
   if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker

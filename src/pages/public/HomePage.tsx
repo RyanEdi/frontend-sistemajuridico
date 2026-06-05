@@ -80,7 +80,7 @@ const plans: Plan[] = [
     price: 'R$ 89',
     period: '/mês',
     cta: 'COMEÇAR AGORA',
-    link: 'https://www.asaas.com/c/poxzqhmiqykq0qiq',
+    link: '/cadastro?plano=basico',
     icon: 'check_circle',
     features: [
       { text: 'Acesso à Jurisprudência Básica' },
@@ -94,7 +94,7 @@ const plans: Plan[] = [
     price: 'R$ 199',
     period: '/mês',
     cta: 'ADQUIRIR PLANO',
-    link: 'https://www.asaas.com/c/zcgup7z0ibl20slc',
+    link: '/cadastro?plano=profissional',
     featured: true,
     badge: 'MAIS POPULAR',
     icon: 'verified',
@@ -111,7 +111,7 @@ const plans: Plan[] = [
     price: 'R$ 499',
     period: '/mês',
     cta: 'FALAR COM VENDAS',
-    link: '/cadastro',
+    link: '/cadastro?plano=enterprise',
     icon: 'check_circle',
     features: [
       { text: 'API de Integração Direta' },
@@ -147,6 +147,51 @@ const topbarLinks: UniversalTopbarLink[] = [
 const HomePage: React.FC = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+    // Como a home e publica e indexavel, os metadados sao reforcados em tempo de execucao.
+    document.title =
+      'Direito & Provento | Plataforma Juridica para Advocacia Previdenciaria';
+
+    const description =
+      'Plataforma juridica com foco em advocacia previdenciaria: gestao de clientes, peticoes inteligentes e calculos PCD com conformidade LGPD.';
+
+    // Garante que a aplicacao consiga atualizar metadados sem depender de renderizacao no servidor.
+    const ensureMeta = (name: string, content: string) => {
+      let meta = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', name);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    // Metadados Open Graph melhoram a pre-visualizacao em WhatsApp, LinkedIn e redes semelhantes.
+    const ensureOg = (property: string, content: string) => {
+      let meta = document.querySelector<HTMLMetaElement>(
+        `meta[property="${property}"]`
+      );
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('property', property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    // URL canonica evita sinal duplicado entre / e /home.
+    let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', 'https://direitoeprovento.com.br/home');
+
+    ensureMeta('description', description);
+    ensureOg('og:title', document.title);
+    ensureOg('og:description', description);
+    ensureOg('og:url', 'https://direitoeprovento.com.br/home');
   }, []);
 
   return (
@@ -224,10 +269,6 @@ const HomePage: React.FC = () => {
                   nos tribunais superiores.
                 </p>
               </div>
-              <a href="#" className="insights-archive-link">
-                Ver arquivo completo
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </a>
             </div>
 
             <div className="insights-grid">
@@ -241,10 +282,9 @@ const HomePage: React.FC = () => {
                   </div>
                   <h3>{item.title}</h3>
                   <p>{item.summary}</p>
-                  <a href="#" className="insight-read-more">
-                    Ler análise
-                    <span className="material-symbols-outlined">chevron_right</span>
-                  </a>
+                  <span className="insight-read-more is-disabled">
+                    Analise disponivel em breve
+                  </span>
                 </article>
               ))}
             </div>
@@ -359,8 +399,6 @@ const HomePage: React.FC = () => {
                 </ul>
                 <Link
                   to={plan.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className={`home-card-cta ${plan.featured ? 'featured-cta' : ''}`}
                 >
                   {plan.cta}
@@ -414,47 +452,32 @@ const HomePage: React.FC = () => {
             </div>
             <div>
               <h5>Plataforma</h5>
-              <a href="#">Jurisprudência</a>
-              <a href="#">Doutrina Select</a>
-              <a href="#">Inteligência Artificial</a>
-              <a href="#">Análise Preditiva</a>
+              <span>Jurisprudencia</span>
+              <span>Doutrina Select</span>
+              <span>Inteligencia Artificial</span>
+              <span>Analise Preditiva</span>
             </div>
             <div>
               <h5>Editorial</h5>
-              <a href="#">Revista Mensal</a>
-              <a href="#">Webinars</a>
-              <a href="#">Opinião</a>
-              <a href="#">Eventos Jurídicos</a>
+              <span>Revista Mensal</span>
+              <span>Webinars</span>
+              <span>Opiniao</span>
+              <span>Eventos Juridicos</span>
             </div>
             <div>
               <h5>Newsletter</h5>
-              <p>Receba os principais acórdãos da semana no seu e-mail.</p>
+              <p>Receba os principais acordaos da semana no seu e-mail.</p>
               <div className="newsletter-row">
                 <input placeholder="E-mail" type="email" />
-                <button type="button">
-                  <span className="material-symbols-outlined">send</span>
-                </button>
               </div>
             </div>
           </div>
 
           <div className="footer-bottom">
             <p>© 2026 DIREITO &amp; PROVENTO. TODOS OS DIREITOS RESERVADOS.</p>
-            <div>
-              <a href="#" aria-label="Compartilhar">
-                <span className="material-symbols-outlined">share</span>
-              </a>
-              <a href="#" aria-label="Política">
-                <span className="material-symbols-outlined">policy</span>
-              </a>
-            </div>
           </div>
         </footer>
       </main>
-
-      <button className="fab" type="button" aria-label="Ação rápida">
-        <span className="material-symbols-outlined">add</span>
-      </button>
     </div>
   );
 };

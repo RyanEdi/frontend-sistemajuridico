@@ -26,7 +26,8 @@
 .main-container {
   display: flex;
   width: min(980px, 100%);
-  height: min(620px, calc(100vh - 40px));
+  min-height: min(620px, calc(100vh - 40px));
+  height: auto;
   background: #ffffff;
   border-radius: 20px;
   overflow: hidden;
@@ -322,12 +323,9 @@
 }
 
 /* AJUSTES EXCLUSIVOS DO CADASTRO (sem impactar outras páginas) */
-#cadastro-page .main-container {
-  height: min(620px, calc(100vh - 40px));
-}
-
 #cadastro-page .login-side {
-  padding: 56px;
+  padding: 40px 56px;
+  align-items: flex-start;
 }
 
 #cadastro-page #cadastro-form {
@@ -369,17 +367,49 @@
 }
 
 #cadastro-page #cadastro-form .form-footer {
-  margin: 6px 0 0 0;
+  margin: 12px 0 0 0;
   font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+#cadastro-page #cadastro-form .checkbox-container--consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  color: #5b6b84;
+  cursor: pointer;
+}
+
+#cadastro-page #cadastro-form .checkbox-container--consent input {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+#cadastro-page #cadastro-form .consent-text {
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+#cadastro-page #cadastro-form .consent-link {
+  color: #6b1a2b;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+#cadastro-page #cadastro-form .create-account--return {
+  align-self: flex-end;
+  margin: 0;
 }
 
 /* AJUSTES EXCLUSIVOS DO REDEFINIR SENHA (sem impactar outras páginas) */
 #redefinir-senha-page .login-title {
   font-family: sans-serif;
-}
-
-#redefinir-senha-page .login-side {
-  padding: 56px;
 }
 
 #redefinir-senha-page #formTroca {
@@ -485,10 +515,6 @@
   text-decoration: none;
 }
 
-#verificar-email-page .login-side {
-  padding: 56px;
-}
-
 #verificar-email-page .login-form-wrapper form {
   max-width: 390px;
 }
@@ -567,15 +593,27 @@
 
   #cadastro-page .main-container {
     height: auto;
+    overflow: visible;
   }
 
   #cadastro-page .login-side {
     padding: 28px 20px 40px;
+    align-items: flex-start;
+  }
+
+  /* garante que todos os campos da linha OAB ocupem 100% no mobile */
+  #cadastro-page .input-field-row .input-field {
+    width: 100% !important;
+    flex: none !important;
   }
 
   #cadastro-page #cadastro-form .login-title {
     font-size: 1.5rem;
     margin-bottom: 18px;
+  }
+
+  #cadastro-page #cadastro-form .create-account--return {
+    align-self: flex-start;
   }
 
   #redefinir-senha-page .login-side {

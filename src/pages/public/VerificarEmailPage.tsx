@@ -9,6 +9,7 @@ const VerificarEmailPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const userId = searchParams.get('id');
+  const plano = searchParams.get('plano') || '';
 
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
   const [errorMessage, setErrorMessage] = useState('');
@@ -111,7 +112,13 @@ const VerificarEmailPage: React.FC = () => {
       if (response.ok && data?.success === true) {
         setSuccessMessage('E-mail verificado com sucesso! Redirecionando...');
         setTimeout(() => {
-          navigate(data.redirectTo || '/loginpage?email_verificado=true', { replace: true });
+          const base: string = data.redirectTo || '/loginpage?email_verificado=true';
+          const target = plano ? `${base}&plano=${plano}` : base;
+          if (target.startsWith('http://') || target.startsWith('https://')) {
+            window.location.href = target;
+          } else {
+            navigate(target, { replace: true });
+          }
         }, 2000);
         return;
       }

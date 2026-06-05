@@ -7,6 +7,9 @@ import CadastroPage from './pages/public/CadastroPage';
 import RedefinirSenhaPage from './pages/public/RedefinirSenhaPage';
 import VerificarEmailPage from './pages/public/VerificarEmailPage';
 import HomePage from './pages/public/HomePage';
+import PoliticaPrivacidadePage from './pages/public/PoliticaPrivacidadePage';
+import TermosDeUsoPage from './pages/public/TermosDeUsoPage';
+import PagamentoPage from './pages/public/PagamentoPage';
 import DashboardPage from './pages/private/DashboardPage';
 import ClientDetailPage from './pages/private/ClientDetailPage';
 import AdminPage from './pages/private/AdminPage';
@@ -44,6 +47,12 @@ const App: React.FC = () => (
         <Route path="/cadastro" element={<CadastroPage />} />
         <Route path="/redefinir-senha" element={<RedefinirSenhaPage />} />
         <Route path="/verificar-email" element={<VerificarEmailPage />} />
+        <Route
+          path="/politica-de-privacidade"
+          element={<PoliticaPrivacidadePage />}
+        />
+        <Route path="/termos-de-uso" element={<TermosDeUsoPage />} />
+        <Route path="/pagamento" element={<PagamentoPage />} />
         <Route path="/planos" element={<Navigate to="/home#planos" replace />} />
 
         {/* Rotas protegidas - requer login */}

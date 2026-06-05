@@ -16,6 +16,7 @@ interface Usuario {
   estado_oab: string;
   verificado?: boolean;
   ativo?: boolean;
+  payment_status?: 'pending' | 'paid' | 'failed' | string;
   created_at: string;
 }
 
@@ -167,6 +168,28 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  const confirmarPagamento = async (id: number) => {
+    try {
+      const response = await fetch(
+        apiUrl(`/api/auth/admin/confirmar-pagamento/${id}`),
+        {
+          method: 'POST',
+          credentials: 'include',
+        }
+      );
+
+      const data = await response.json();
+
+      response.ok
+        ? (setSuccessMessage(data.message),
+          carregarUsuarios(),
+          setTimeout(() => setSuccessMessage(''), 3000))
+        : setError(data.error || 'Erro ao confirmar pagamento.');
+    } catch (err) {
+      setError('Erro de conexao ao confirmar pagamento.');
+    }
+  };
+
   const excluirUsuario = async (id: number, nome: string) => {
     if (
       !confirm(
@@ -195,6 +218,9 @@ const AdminPage: React.FC = () => {
   };
 
   const getStatusInfo = (usuario: Usuario) => {
+    if (usuario.payment_status !== 'paid') {
+      return { label: 'Pagamento pendente', className: 'pagamento-pendente' };
+    }
     if (!usuario.verificado) {
       return { label: 'Pendente', className: 'pendente' };
     }
@@ -302,7 +328,17 @@ const AdminPage: React.FC = () => {
                       >
                         📷
                       </button>
-                      {!usuario.verificado && (
+                      {!usuario.verificado &&
+                        usuario.payment_status !== 'paid' && (
+                          <button
+                            className="btn-pagamento"
+                            onClick={() => confirmarPagamento(usuario.id)}
+                            title="Confirmar pagamento"
+                          >
+                            $ Confirmar Pagamento
+                          </button>
+                        )}
+                      {!usuario.verificado && usuario.payment_status === 'paid' && (
                         <>
                           <button
                             className="btn-aprovar"

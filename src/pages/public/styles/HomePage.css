@@ -478,6 +478,16 @@
   font-size: 16px;
 }
 
+.insight-read-more.is-disabled {
+  color: #7f6e3a;
+  letter-spacing: 0.03em;
+  cursor: default;
+}
+
+.insight-read-more.is-disabled:hover {
+  gap: 2px;
+}
+
 .home-footer {
   background: #eceef1;
   padding: 56px 24px;
@@ -515,7 +525,8 @@
   line-height: 1.5;
 }
 
-.footer-grid a {
+.footer-grid a,
+.footer-grid span {
   display: block;
   color: #44474d;
   text-decoration: none;
@@ -530,7 +541,7 @@
 .newsletter-row input {
   flex: 1;
   border: 0;
-  border-radius: 8px 0 0 8px;
+  border-radius: 8px;
   padding: 10px;
 }
 
