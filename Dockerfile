@@ -5,7 +5,7 @@ RUN npm ci
 COPY tsconfig.json vite.config.ts vite-env.d.ts index.html ./
 COPY src/ src/
 COPY public/ public/
-ARG VITE_API_BASE=http://localhost:3333
+ARG VITE_API_BASE=
 ENV VITE_API_BASE=$VITE_API_BASE
 RUN npm run build
 

@@ -137,7 +137,12 @@ const CadastroPage: React.FC = () => {
         return;
       }
 
-      setErrorMessage(data?.message || rawText || 'Ocorreu um erro ao tentar cadastrar. Tente novamente.');
+      setErrorMessage(
+        data?.message ||
+        data?.error ||
+        rawText ||
+        'Ocorreu um erro ao tentar cadastrar. Tente novamente.'
+      );
     } catch (error) {
       setErrorMessage(`Erro de conexão com o servidor: ${(error as Error).message}`);
     } finally {
