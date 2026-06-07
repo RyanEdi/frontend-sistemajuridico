@@ -187,7 +187,7 @@ const VerificarEmailPage: React.FC = () => {
             <h1>VERIFICAÇÃO</h1>
             <p>Confirme seu e-mail para ativar sua conta</p>
           </div>
-          <div className="site-url">WWW.JURIDICOPCD.COM</div>
+          <div className="site-url">WWW.DIREITOEPROVENTO.COM.BR</div>
         </div>
 
         <div className="login-side">

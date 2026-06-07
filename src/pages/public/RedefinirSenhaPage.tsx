@@ -104,7 +104,7 @@ const RedefinirSenhaPage: React.FC = () => {
             <h1>SEGURANÇA</h1>
             <p>Atualize sua senha com proteção e acesso institucional</p>
           </div>
-          <div className="site-url">WWW.JURIDICOPCD.COM</div>
+          <div className="site-url">WWW.DIREITOEPROVENTO.COM.BR</div>
         </div>
 
         <div className="login-side">

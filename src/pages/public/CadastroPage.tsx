@@ -160,7 +160,7 @@ const CadastroPage: React.FC = () => {
             <h1>CADASTRO</h1>
             <p>Crie sua conta para acessar a plataforma jurídica</p>
           </div>
-          <div className="site-url">WWW.JURIDICOPCD.COM</div>
+          <div className="site-url">WWW.DIREITOEPROVENTO.COM.BR</div>
         </div>
 
         <div className="login-side">

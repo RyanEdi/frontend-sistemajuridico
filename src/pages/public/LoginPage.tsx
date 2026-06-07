@@ -175,7 +175,7 @@ const LoginPage: React.FC = () => {
             <h1>BEM-VINDO(A)</h1>
             <p>Faça login para acessar sua conta</p>
           </div>
-          <div className="site-url">WWW.JURIDICOPCD.COM</div>
+          <div className="site-url">WWW.DIREITOEPROVENTO.COM.BR</div>
         </div>
 
         <div className="login-side">
