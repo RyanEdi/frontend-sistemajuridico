@@ -673,7 +673,7 @@ const NovoClientePage: React.FC = () => {
       let res;
       if (pcd && documentoComprobatorioNome) {
         const formDataToSend = new FormData();
-        formDataToSend.append('name', trimmedName);
+        formDataToSend.append('nome_completo', trimmedName);
         formDataToSend.append('cpf', onlyDigits(trimmedCpf));
         formDataToSend.append('dataNascimento', dataNascimento || '');
         formDataToSend.append('email', trimmedEmail);
@@ -736,7 +736,7 @@ const NovoClientePage: React.FC = () => {
           },
           credentials: 'include',
           body: JSON.stringify({
-            name: trimmedName,
+            nome_completo: trimmedName,
             cpf: onlyDigits(trimmedCpf),
             dataNascimento: dataNascimento || null,
             email: trimmedEmail,
