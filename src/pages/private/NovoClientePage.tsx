@@ -716,7 +716,7 @@ const NovoClientePage: React.FC = () => {
         if (fileInput && fileInput.files && fileInput.files[0]) {
           formDataToSend.append('documentoComprobatorio', fileInput.files[0]);
         }
-        res = await fetch('http//www.direitoeprovento.com.br/api/clients', {
+        res = await fetch('http://www.direitoeprovento.com.br/api/clients', {
           method: 'POST',
           credentials: 'include',
           headers: {
