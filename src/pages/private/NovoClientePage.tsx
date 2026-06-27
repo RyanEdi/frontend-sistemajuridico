@@ -259,7 +259,6 @@ const NovoClientePage: React.FC = () => {
   const [observacoes, setObservacoes] = useState('');
   const [licencaMeses, setLicencaMeses] = useState('');
   const [licencaSalario, setLicencaSalario] = useState('');
-
   
   
   const [periodos, setPeriodos] = useState<Periodo[]>([
@@ -669,62 +668,63 @@ const NovoClientePage: React.FC = () => {
     setSaving(true);
     setError(null);
     try {
-      // Se houver arquivo de documento, use FormData
       let res;
-      if (pcd && documentoComprobatorioNome) {
-        const formDataToSend = new FormData();
-        formDataToSend.append('nome_completo', trimmedName);
-        formDataToSend.append('cpf', onlyDigits(trimmedCpf));
-        formDataToSend.append('dataNascimento', dataNascimento || '');
-        formDataToSend.append('email', trimmedEmail);
-        formDataToSend.append('telefone', onlyDigits(trimmedTelefone));
-        formDataToSend.append('cep', onlyDigits(trimmedCep));
-        formDataToSend.append('address', endereco.trim());
-        formDataToSend.append('estadoCivil', estadoCivil.trim());
-        formDataToSend.append('profissao', profissao.trim());
-        formDataToSend.append('cidadeUf', trimmedCidadeUf);
-        formDataToSend.append('contribuicaoMensal', contribuicao.trim());
-        formDataToSend.append('valorDanoMoral', danoMoral.trim());
-        formDataToSend.append('valorDaCausa', valorCausa.trim());
-        formDataToSend.append('possuiDeficiencia', String(pcd));
-        formDataToSend.append('tipoDeficiencia', pcd ? tipoDeficiencia : '');
-        formDataToSend.append('dataLaudo', pcd ? dataLaudo : '');
-        formDataToSend.append('cid', pcd ? trimmedCid.toUpperCase() : '');
-        formDataToSend.append('grauDeficienciaIfbra', pcd ? grauDeficiencia : '');
-        formDataToSend.append('sexoPrevidenciario', sexoPrevidenciario || '');
-        formDataToSend.append('observacoesJuridicas', observacoes.trim());
-        formDataToSend.append('periodos', JSON.stringify(periodos.map(periodo => ({
-          tipo: periodo.tipo,
-          inicio: periodo.inicio,
-          fim: periodo.fim,
-        }))));
-        formDataToSend.append('calculoPrevidenciario', JSON.stringify({
-          diasOriginaisTotal: resumoCalculo.diasOriginais,
-          diasConvertidosTotal: resumoCalculo.diasConvertidos,
-          diasAteLimiteEspecial: resumoCalculo.diasAteLimiteEspecial,
-          diasAposLimiteEspecial: resumoCalculo.diasAposLimiteEspecial,
-          periodos: periodosCalculados.map(pc => ({
-            id: pc.id,
-            diasOriginais: pc.diasOriginais,
-            diasConvertidos: pc.diasConvertidos,
-            fator: pc.fator,
-            fundamento: pc.fundamento,
-          })),
-        }));
-        // Buscar o arquivo do input file
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement | null;
-        if (fileInput && fileInput.files && fileInput.files[0]) {
-          formDataToSend.append('documentoComprobatorio', fileInput.files[0]);
-        }
-        res = await fetch('https://www.direitoeprovento.com.br/api/clients', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'x-user-id': String(user?.id ?? 1),
-            'x-user-admin': user?.isAdmin ? 'true' : 'false',
-          },
-          body: formDataToSend,
-        });
+   if (pcd && documentoComprobatorioNome) {
+  const formDataToSend = new FormData();
+  formDataToSend.append('name', trimmedName); 
+  formDataToSend.append('cpf', onlyDigits(trimmedCpf));
+  formDataToSend.append('dataNascimento', dataNascimento || '');
+  formDataToSend.append('email', trimmedEmail);
+  formDataToSend.append('phone', onlyDigits(trimmedTelefone));
+  formDataToSend.append('zipCode', onlyDigits(trimmedCep));
+  formDataToSend.append('address', endereco.trim());
+  formDataToSend.append('estadoCivil', estadoCivil.trim());
+  formDataToSend.append('profissao', profissao.trim());
+  formDataToSend.append('cidadeUf', trimmedCidadeUf);
+  formDataToSend.append('contribuicaoMensal', contribuicao.trim());
+  formDataToSend.append('valorDanoMoral', danoMoral.trim());
+  formDataToSend.append('valorDaCausa', valorCausa.trim());
+  formDataToSend.append('possuiDeficiencia', String(pcd));
+  formDataToSend.append('tipoDeficiencia', pcd ? tipoDeficiencia : '');
+  formDataToSend.append('dataLaudo', pcd ? dataLaudo : '');
+  formDataToSend.append('cid', pcd ? trimmedCid.toUpperCase() : '');
+  formDataToSend.append('grauDeficienciaIfbra', pcd ? grauDeficiencia : '');
+  formDataToSend.append('sexoPrevidenciario', sexoPrevidenciario || '');
+  formDataToSend.append('observacoesJuridicas', observacoes.trim());
+  formDataToSend.append('periodos', JSON.stringify(periodos.map(periodo => ({
+    tipo: periodo.tipo,
+    inicio: periodo.inicio,
+    fim: periodo.fim,
+  }))));
+  formDataToSend.append('calculoPrevidenciario', JSON.stringify({
+    diasOriginaisTotal: resumoCalculo.diasOriginais,
+    diasConvertidosTotal: resumoCalculo.diasConvertidos,
+    diasAteLimiteEspecial: resumoCalculo.diasAteLimiteEspecial,
+    diasAposLimiteEspecial: resumoCalculo.diasAposLimiteEspecial,
+    periodos: periodosCalculados.map(pc => ({
+      id: pc.id,
+      diasOriginais: pc.diasOriginais,
+      diasConvertidos: pc.diasConvertidos,
+      fator: pc.fator,
+      fundamento: pc.fundamento,
+    })),
+  }));
+
+  // Buscar o arquivo do input file
+  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement | null;
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    formDataToSend.append('documentoComprobatorio', fileInput.files[0]);
+  }
+
+  res = await fetch('https://www.direitoeprovento.com.br/api/clients', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'x-user-id': String(user?.id ?? 1),
+      'x-user-admin': user?.isAdmin ? 'true' : 'false',
+    },
+    body: formDataToSend,
+  });
       } else {
         // Sem arquivo, envia como JSON
         res = await fetch('https://www.direitoeprovento.com.br/api/clients', {
@@ -799,6 +799,7 @@ const NovoClientePage: React.FC = () => {
       setSaving(false);
     }
   };
+
 
   return (
     <div className="ed-page">
