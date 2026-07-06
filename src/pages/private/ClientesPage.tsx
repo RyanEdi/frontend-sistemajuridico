@@ -7,6 +7,9 @@ import AppTopbar from '../../components/AppTopbar';
 import './styles/NovoClientePage.css';
 import './styles/DashboardPage.css';
 import './styles/AdminPage.css';
+import EmailModal from '../../template/EmailModal';
+
+const [emailModal, setEmailModal] = useState({ isOpen: false, clienteId: '' });
 
 // --- FORMATADORES ---
 const onlyDigits = (value: string) => {
@@ -648,26 +651,27 @@ const ClientesPage: React.FC = () => {
                             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>print</span>
                           </button>
                           
-                            <button
-                              type="button"
-                              title="Enviar Ficha por E-mail"
-                              onClick={() => handleSendEmail(cliente.id)}
-                              style={{
-                                background: '#fef7e0', 
-                                color: '#b47e00',
-                                border: 'none',
-                                width: '34px',
-                                height: '34px',
-                                borderRadius: '6px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                marginLeft: '8px'
-                              }}
-                            >
-                              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mail</span>
-                            </button>
+                           <button
+                            type="button"
+                            title="Enviar Ficha por E-mail"
+                            onClick={() => setEmailModal({ isOpen: true, clienteId: cliente.id })} // Abre o modal
+                            style={{
+                              background: '#fef7e0',
+                              color: '#b47e00',
+                              border: 'none',
+                              width: '34px',
+                              height: '34px',
+                              borderRadius: '6px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              marginLeft: '8px'
+                            }}
+                          >
+                            
+                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mail</span>
+                          </button>
 
                           <button
                             className="btn-icon-delete"
@@ -688,6 +692,13 @@ const ClientesPage: React.FC = () => {
         </div>
       </main>
 
+      <EmailModal 
+        isOpen={emailModal.isOpen} 
+        onClose={() => setEmailModal({ isOpen: false, clienteId: '' })} 
+        clienteId={emailModal.clienteId}
+        pdfData={{ nome: 'Ficha_Cadastral.pdf', tamanho: '150KB' }}
+      />
+  
       <div className="ed-bg-right" aria-hidden="true" />
       <div className="ed-bg-left" aria-hidden="true" />
     </div>
