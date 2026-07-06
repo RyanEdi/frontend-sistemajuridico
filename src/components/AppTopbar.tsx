@@ -20,7 +20,7 @@ interface Evento {
 function daysUntil(dateStr: string): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const s = String(dateStr).slice(0, 10); // robusto para "YYYY-MM-DD" ou ISO com timezone
+  const s = String(dateStr).slice(0, 10);
   const [y, m, d] = s.split('-').map(Number);
   const target = new Date(y, m - 1, d);
   return Math.round((target.getTime() - today.getTime()) / 86_400_000);
@@ -38,17 +38,19 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
   searchValue,
   onSearchChange,
 }) => {
-  // Adicionado a função logout extraída do useAuth
   const { user, fotoUrl, logout } = useAuth();
-  const [showNotif, setShowNotif] = useState(false);
   
-  // Novo estado para controlar o menu do perfil
+  // Estados dos Menus Dropdown
+  const [showNotif, setShowNotif] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loadingNotif, setLoadingNotif] = useState(false);
   const [viewed, setViewed] = useState(false);
+  
+  // Refs para detectar cliques fora dos menus
   const notifRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   const initials = (user?.name || 'U')
     .split(' ')
@@ -61,7 +63,6 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
     document.body.classList.toggle('sidebar-open');
   };
 
-  // Todos os eventos nos próximos 60 dias (inclusive vencidos)
   const prazos = eventos.filter(e => {
     const days = daysUntil(e.data);
     return days <= 60;
@@ -79,6 +80,7 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
       return;
     }
     setShowNotif(true);
+    setShowProfileMenu(false); // Fecha o perfil se abrir a notificação
     setViewed(true);
     if (eventos.length === 0) {
       setLoadingNotif(true);
@@ -96,17 +98,24 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
     }
   };
 
-  // Close dropdown on outside click
+  const toggleProfileMenu = () => {
+    setShowProfileMenu(!showProfileMenu);
+    setShowNotif(false); // Fecha a notificação se abrir o perfil
+  };
+
+  // Fecha os dropdowns ao clicar fora deles (Essencial para Mobile)
   useEffect(() => {
-    if (!showNotif) return;
     const handler = (e: MouseEvent) => {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+      if (showNotif && notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotif(false);
+      }
+      if (showProfileMenu && profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setShowProfileMenu(false);
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [showNotif]);
+  }, [showNotif, showProfileMenu]);
 
   return (
     <header className="ed-topbar">
@@ -131,7 +140,7 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
       </div>
 
       <div className="ed-topbar-right">
-        {/* ── Notification button with dropdown ── */}
+        {/* ── Menu de Notificações ── */}
         <div className="ed-notif-wrap" ref={notifRef}>
           <button
             className="ed-icon-btn"
@@ -198,14 +207,18 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
           <span className="material-symbols-outlined">help</span>
         </a>
 
-        {/* ── Perfil com Menu Expansível (Hover) ── */}
+        {/* ── Perfil com Menu Expansível (Otimizado para Mobile e Desktop) ── */}
         <div 
           className="ed-profile-menu-wrapper"
-          onMouseEnter={() => setShowProfileMenu(true)}
-          onMouseLeave={() => setShowProfileMenu(false)}
+          ref={profileRef}
           style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '100%' }}
         >
-          <Link className="ed-user-wrap" to="/perfil" title="Ver perfil" style={{ textDecoration: 'none' }}>
+          <div 
+            className="ed-user-wrap" 
+            title="Menu do Usuário" 
+            onClick={toggleProfileMenu}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
             <div className="ed-user-text">
               <p>{user?.name || 'Advogado(a)'}</p>
               <small>{user?.isAdmin ? 'Admin' : 'Perfil'}</small>
@@ -216,7 +229,7 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
                 : initials
               }
             </div>
-          </Link>
+          </div>
 
           {/* Janela Flutuante do Menu */}
           {showProfileMenu && (
@@ -224,11 +237,10 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
               className="ed-profile-dropdown"
               style={{
                 position: 'absolute',
-                top: '100%',
+                top: '110%',
                 right: 0,
-                paddingTop: '10px', /* Cria uma "ponte" invisível para o mouse não perder o hover */
                 zIndex: 100,
-                minWidth: '180px'
+                minWidth: '200px'
               }}
             >
               <div style={{
@@ -242,6 +254,7 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
               }}>
                 <Link 
                   to="/perfil" 
+                  onClick={() => setShowProfileMenu(false)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '8px', padding: '10px',
                     color: '#475569', textDecoration: 'none', fontSize: '14px',
@@ -262,7 +275,7 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
                     display: 'flex', alignItems: 'center', gap: '8px', padding: '10px',
                     background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer',
                     fontSize: '14px', fontWeight: 500, borderRadius: '6px', transition: 'background 0.2s',
-                    textAlign: 'left'
+                    textAlign: 'left', width: '100%'
                   }}
                   onMouseOver={e => e.currentTarget.style.background = '#fef2f2'}
                   onMouseOut={e => e.currentTarget.style.background = 'transparent'}
