@@ -120,6 +120,7 @@ const NovoEventoPage: React.FC = () => {
                     <input
                       type="text"
                       placeholder="Ex: Audiência - Maria Aparecida"
+                      className="input-titulo"
                       value={titulo}
                       onChange={e => setTitulo(e.target.value)}
                       required

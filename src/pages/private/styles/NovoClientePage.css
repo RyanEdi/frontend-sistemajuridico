@@ -2087,3 +2087,16 @@ html, body {
   margin: 0 auto;
   box-sizing: border-box;
 }
+
+/* Container que agrupa os inputs do formulário */
+.form-row {
+  display: grid;
+  /* Aumente o valor proporcional (ex: 2fr para Título, 1fr para outros) */
+  grid-template-columns: 2fr 1fr 1fr; 
+  gap: 15px;
+}
+
+/* Força o input de título a ocupar 100% da largura da sua célula */
+.input-titulo {
+  width: 100%;
+}
