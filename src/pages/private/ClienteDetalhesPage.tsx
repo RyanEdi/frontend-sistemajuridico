@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, FormEvent } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { apiUrl } from '../../config/api';
@@ -47,6 +47,18 @@ const formatCurrency = (value: string) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
+};
+
+// Remove os pontos e ajusta a vírgula para não quebrar o banco de dados ao salvar a edição
+const unformatCurrency = (value: string) => {
+  if (!value) return '';
+  return value.replace(/\./g, '').replace(',', '.');
+};
+
+// Corta a string ISO (1980-10-02T03:00) para forçar o input=date a reconhecer (1980-10-02)
+const formatDateForInput = (dateStr?: string | null) => {
+  if (!dateStr) return '';
+  return dateStr.split('T')[0];
 };
 
 // --- CONSTANTES E FUNÇÕES DE CÁLCULO ---
@@ -241,7 +253,8 @@ const ClienteDetalhesPage: React.FC = () => {
         setName(data.name || '');
         setCpf(formatCpf(data.cpf || ''));
         setRg(data.rg || '');
-        setDataNascimento(data.dataNascimento || '');
+        // Aplicado o formatador para isolar o "YYYY-MM-DD" que o input reconhece
+        setDataNascimento(formatDateForInput(data.dataNascimento));
         setSexoPrevidenciario((data.sexoPrevidenciario as SexoPrevidenciario) || '');
         setEstadoCivil(data.estadoCivil || '');
         setEmail(data.email || '');
@@ -253,7 +266,7 @@ const ClienteDetalhesPage: React.FC = () => {
         setCidadeUf(data.cidadeUf || '');
         setPcd(!!data.possuiDeficiencia);
         setTipoDeficiencia(data.tipoDeficiencia || 'FISICA');
-        setDataLaudo(data.dataLaudo || '');
+        setDataLaudo(formatDateForInput(data.dataLaudo));
         setCid(data.cid || '');
         setGrauDeficiencia(data.grauDeficienciaIfbra || 'LEVE');
         setDocumentoComprobatorioNome(data.documentoComprobatorioNome || '');
@@ -261,14 +274,14 @@ const ClienteDetalhesPage: React.FC = () => {
         setValorCausa(data.valorDaCausa || '');
         setObservacoes(data.observacoesJuridicas || '');
 
-        // Carrega os períodos do banco
+        // Carrega os períodos do banco e limpa a formatação de ISO para YYYY-MM-DD
         if (data.periodos && data.periodos.length > 0) {
           setPeriodos(
             data.periodos.map((p, index) => ({
               id: index + 1,
               tipo: (p.tipo as Periodo['tipo']) || 'COMUM',
-              inicio: p.inicio || '',
-              fim: p.fim || '',
+              inicio: formatDateForInput(p.inicio),
+              fim: formatDateForInput(p.fim),
               faltas: '',
             }))
           );
@@ -401,17 +414,101 @@ const ClienteDetalhesPage: React.FC = () => {
     });
   }, [grauDeficiencia, pcd, dataLaudo, dataNascimento, periodos, sexoPrevidenciario]);
 
+  // Restaura a lógica viva para a aba de "Averbação", caso o usuário ative durante a edição
   const averbacaoCalculada = useMemo<PeriodoCalculado | null>(() => {
-    if (!temAverbacao || !averbacaoInicio) return null;
+    if (!temAverbacao) return null;
+    if (!averbacaoInicio) return { id: 0, diasOriginais: 0, diasAteLimiteEspecial: 0, diasAposLimiteEspecial: 0, fator: null, diasConvertidos: 0, diasAposConversaoInsalubre: 0, fatorPonderacao: null, erro: 'Informe a data de início para calcular este período.', fundamento: '', diasAntesDeficiencia: 0, diasAposDeficiencia: 0, fatorAntesDeficiencia: null, fatorAposDeficiencia: null, diasConvertidosAntesDeficiencia: 0, diasConvertidosAposDeficiencia: 0 };
     const periodoAverb: Periodo = { id: 0, tipo: averbacaoTipo, inicio: averbacaoInicio, fim: averbacaoFim };
-    const tempPeriodos = [...periodos];
-    // Solução simples: adicionar e calcular para aproveitar a lógica
-    // Opcionalmente podemos abstrair, mas para manter compatibilidade exata com NovoClientePage:
-    return null; // Omitindo averbação isolada para não sobrecarregar, pois os períodos já podem ser adicionados nos cards dinâmicos.
-  }, [temAverbacao, averbacaoTipo, averbacaoInicio, averbacaoFim]);
+    const dataDeficienciaEfetivaAverb = pcd ? (dataLaudo || dataNascimento || null) : null;
+    const dataDiagnostico = dataDeficienciaEfetivaAverb ? parseDateAtUtc(dataDeficienciaEfetivaAverb) : null;
+    const dataLimiteEspecial = parseDateAtUtc(ESPECIAL_LIMIT_DATE)!;
+    const today = new Date().toISOString().slice(0, 10);
+    const makeEmpty = (): PeriodoCalculado => ({
+      id: 0, diasOriginais: 0, diasAteLimiteEspecial: 0, diasAposLimiteEspecial: 0,
+      fator: null, diasConvertidos: 0, diasAposConversaoInsalubre: 0, fatorPonderacao: null,
+      erro: null, fundamento: '', diasAntesDeficiencia: 0, diasAposDeficiencia: 0,
+      fatorAntesDeficiencia: null, fatorAposDeficiencia: null,
+      diasConvertidosAntesDeficiencia: 0, diasConvertidosAposDeficiencia: 0,
+    });
+    const diasOriginais = getDiasNoPeriodo(averbacaoInicio, averbacaoFim || '') || 0;
+    if (!diasOriginais) return { ...makeEmpty(), erro: 'Data final anterior à inicial.' };
+    const dataInicio = parseDateAtUtc(averbacaoInicio)!;
+    const dataFim = parseDateAtUtc(averbacaoFim || today)!;
+    let diasAntesDeficiencia = 0;
+    let diasAposDeficiencia = diasOriginais;
+    if (dataDiagnostico) {
+      if (dataInicio >= dataDiagnostico) { diasAntesDeficiencia = 0; diasAposDeficiencia = diasOriginais; }
+      else if (dataFim < dataDiagnostico) { diasAntesDeficiencia = diasOriginais; diasAposDeficiencia = 0; }
+      else {
+        diasAntesDeficiencia = Math.floor((dataDiagnostico.getTime() - dataInicio.getTime()) / MS_PER_DAY);
+        diasAposDeficiencia = diasOriginais - diasAntesDeficiencia;
+      }
+    }
+    if (periodoAverb.tipo === 'COMUM') {
+      const fatorAntes = (() => {
+        if (!pcd || diasAntesDeficiencia <= 0 || !sexoPrevidenciario) return 1;
+        const metaComum = getMetaTempoComum(sexoPrevidenciario);
+        const metaPcd = getMetaTempoPcd(sexoPrevidenciario, grauDeficiencia as GrauDeficiencia);
+        return getFator70E(sexoPrevidenciario, metaComum, metaPcd);
+      })();
+      const diasConvertidosAntes = diasAntesDeficiencia * fatorAntes;
+      const diasConvertidosApos = diasAposDeficiencia * 1;
+      return {
+        ...makeEmpty(), diasOriginais, diasAntesDeficiencia, diasAposDeficiencia,
+        fator: fatorAntes, fatorAntesDeficiencia: fatorAntes, fatorAposDeficiencia: 1,
+        diasConvertidosAntesDeficiencia: diasConvertidosAntes, diasConvertidosAposDeficiencia: diasConvertidosApos,
+        diasConvertidos: diasConvertidosAntes + diasConvertidosApos,
+        diasAposConversaoInsalubre: diasConvertidosAntes + diasConvertidosApos, fatorPonderacao: null,
+        fundamento: pcd && diasAntesDeficiencia > 0 && sexoPrevidenciario
+          ? `Dec. 8145/13 Art. 70-E: tempo antes do diagnóstico convertido (fator ${fatorAntes.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}). Após: 1,00.`
+          : 'Tempo comum: fator 1,00.',
+      };
+    }
+    if (!sexoPrevidenciario) return { ...makeEmpty(), diasOriginais, erro: 'Selecione o sexo previd.', fundamento: '' };
+    const fimElegivelIns = dataFim < dataLimiteEspecial ? dataFim : dataLimiteEspecial;
+    const diasAteLimiteEspecial = dataInicio <= fimElegivelIns
+      ? Math.floor((fimElegivelIns.getTime() - dataInicio.getTime()) / MS_PER_DAY) + 1 : 0;
+    const diasAposLimiteEspecial = Math.max(0, diasOriginais - diasAteLimiteEspecial);
+    if (periodoAverb.tipo === 'INSALUBRE_NORMAL') {
+      const metaComumIns = getMetaTempoComum(sexoPrevidenciario);
+      const fatorIns = getFator70E(sexoPrevidenciario, 25, metaComumIns);
+      let diasInsAntesPcD = diasAteLimiteEspecial, diasInsAposPcD = 0;
+      if (dataDiagnostico && pcd && diasAteLimiteEspecial > 0) {
+        const diagMs = dataDiagnostico.getTime(), inicioMs = dataInicio.getTime(), fimMs = fimElegivelIns.getTime();
+        if (dataInicio >= dataDiagnostico) { diasInsAntesPcD = 0; diasInsAposPcD = diasAteLimiteEspecial; }
+        else if (diagMs > fimMs) { diasInsAntesPcD = diasAteLimiteEspecial; diasInsAposPcD = 0; }
+        else { diasInsAntesPcD = Math.floor((diagMs - inicioMs) / MS_PER_DAY); diasInsAposPcD = Math.max(0, diasAteLimiteEspecial - diasInsAntesPcD); }
+      }
+      const diasComumAntes = diasInsAntesPcD * fatorIns, diasComumApos = diasInsAposPcD * fatorIns;
+      const diasAposConversaoInsalubre = diasComumAntes + diasComumApos + diasAposLimiteEspecial;
+      const metaPcdPond = pcd ? getMetaTempoPcd(sexoPrevidenciario, grauDeficiencia as GrauDeficiencia) : metaComumIns;
+      const fatorPond = (pcd && diasInsAntesPcD > 0) ? getFator70E(sexoPrevidenciario, metaComumIns, metaPcdPond) : null;
+      const diasPonderadosAntes = fatorPond !== null ? diasComumAntes * fatorPond : diasComumAntes;
+      return {
+        ...makeEmpty(), diasOriginais, diasAteLimiteEspecial, diasAposLimiteEspecial,
+        diasAntesDeficiencia: diasInsAntesPcD, diasAposDeficiencia: diasInsAposPcD,
+        fator: fatorIns, fatorAntesDeficiencia: fatorIns, fatorAposDeficiencia: 1,
+        fatorPonderacao: fatorPond, diasConvertidosAntesDeficiencia: diasPonderadosAntes,
+        diasConvertidosAposDeficiencia: diasComumApos, diasAposConversaoInsalubre,
+        diasConvertidos: diasPonderadosAntes + diasComumApos + diasAposLimiteEspecial,
+        fundamento: `Dec. 8145/13 Art. 70-E: insalubre normal → ${metaComumIns}a (fator ${fatorIns.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}). Após 13/11/2019: 1,00.`,
+      };
+    }
+    const metaPcdIns = getMetaTempoPcd(sexoPrevidenciario, grauDeficiencia as GrauDeficiencia);
+    const fatorInsPcd = getFator70F(sexoPrevidenciario, 25, metaPcdIns);
+    const diasConvPcd = diasAteLimiteEspecial * fatorInsPcd + diasAposLimiteEspecial;
+    return {
+      ...makeEmpty(), diasOriginais, diasAteLimiteEspecial, diasAposLimiteEspecial,
+      fator: fatorInsPcd, fatorAntesDeficiencia: fatorInsPcd, fatorAposDeficiencia: 1,
+      diasConvertidosAntesDeficiencia: diasAteLimiteEspecial * fatorInsPcd, diasConvertidosAposDeficiencia: diasAposLimiteEspecial,
+      diasAposConversaoInsalubre: diasConvPcd, fatorPonderacao: null, diasConvertidos: diasConvPcd,
+      fundamento: `Dec. 8145/13 Art. 70-F §1°: insalubre PcD → ${metaPcdIns}a (fator ${fatorInsPcd.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}). Após 13/11/2019: 1,00.`,
+    };
+  }, [temAverbacao, averbacaoTipo, averbacaoInicio, averbacaoFim, pcd, dataLaudo, dataNascimento, sexoPrevidenciario, grauDeficiencia]);
 
   const resumoCalculo = useMemo(() => {
-    return periodosCalculados.reduce((acc, periodo) => {
+    const averbacaoDias = averbacaoCalculada?.diasConvertidos ?? 0;
+    const base = periodosCalculados.reduce((acc, periodo) => {
       acc.diasOriginais += periodo.diasOriginais;
       acc.diasConvertidos += periodo.diasConvertidos;
       acc.diasAposConversaoInsalubre += periodo.diasAposConversaoInsalubre;
@@ -420,7 +517,13 @@ const ClienteDetalhesPage: React.FC = () => {
       if (periodo.erro) acc.temPendencias = true;
       return acc;
     }, { diasOriginais: 0, diasConvertidos: 0, diasAposConversaoInsalubre: 0, diasAteLimiteEspecial: 0, diasAposLimiteEspecial: 0, temPendencias: false });
-  }, [periodosCalculados]);
+    
+    return {
+      ...base,
+      diasConvertidos: base.diasConvertidos + averbacaoDias,
+      averbacaoDias,
+    };
+  }, [periodosCalculados, averbacaoCalculada]);
 
   const nextPeriodoId = useMemo(() => (periodos.length ? Math.max(...periodos.map(p => p.id)) + 1 : 1), [periodos]);
   const updatePeriodo = <K extends keyof Periodo>(id: number, key: K, value: Periodo[K]) => setPeriodos(prev => prev.map(p => p.id === id ? { ...p, [key]: value } : p));
@@ -433,13 +536,11 @@ const ClienteDetalhesPage: React.FC = () => {
     setError(null);
     try {
       let res;
-      // Combina a averbação com os períodos caso ela exista visualmente
       const periodosParaEnviar = [...periodos];
       if (temAverbacao && averbacaoInicio) {
         periodosParaEnviar.push({ id: 0, tipo: averbacaoTipo, inicio: averbacaoInicio, fim: averbacaoFim });
       }
 
-      // Se houver arquivo selecionado, envia via FormData, senão via JSON
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement | null;
       if (pcd && fileInput && fileInput.files && fileInput.files[0]) {
         const formData = new FormData();
@@ -451,7 +552,12 @@ const ClienteDetalhesPage: React.FC = () => {
         formData.append('estadoCivil', estadoCivil || '');
         formData.append('email', email || '');
         formData.append('phone', onlyDigits(telefone));
-        formData.append('contribuicaoMensal', contribuicao.trim());
+        
+        // Aplica o "unformat" para o banco não dar erro caso o usuário altere a moeda
+        formData.append('contribuicaoMensal', unformatCurrency(contribuicao));
+        formData.append('valorDanoMoral', unformatCurrency(danoMoral));
+        formData.append('valorDaCausa', unformatCurrency(valorCausa));
+        
         formData.append('profissao', profissao || '');
         formData.append('zipCode', onlyDigits(cep));
         formData.append('address', endereco || '');
@@ -461,8 +567,6 @@ const ClienteDetalhesPage: React.FC = () => {
         formData.append('dataLaudo', pcd ? dataLaudo : '');
         formData.append('cid', pcd ? cid : '');
         formData.append('grauDeficienciaIfbra', pcd ? grauDeficiencia : '');
-        formData.append('valorDanoMoral', danoMoral.trim());
-        formData.append('valorDaCausa', valorCausa.trim());
         formData.append('observacoesJuridicas', observacoes || '');
         formData.append('documentoComprobatorio', fileInput.files[0]);
         formData.append('periodos', JSON.stringify(periodosParaEnviar.map(p => ({ tipo: p.tipo, inicio: p.inicio, fim: p.fim }))));
@@ -497,7 +601,12 @@ const ClienteDetalhesPage: React.FC = () => {
             estadoCivil: estadoCivil || null,
             email: email || null,
             phone: onlyDigits(telefone),
-            contribuicaoMensal: contribuicao.trim(),
+            
+            // Aplica o "unformat" para o banco não dar erro
+            contribuicaoMensal: unformatCurrency(contribuicao),
+            valorDanoMoral: unformatCurrency(danoMoral),
+            valorDaCausa: unformatCurrency(valorCausa),
+            
             profissao: profissao || null,
             zipCode: onlyDigits(cep),
             address: endereco || null,
@@ -508,8 +617,6 @@ const ClienteDetalhesPage: React.FC = () => {
             cid: pcd ? (cid || null) : null,
             grauDeficienciaIfbra: pcd ? grauDeficiencia : null,
             documentoComprobatorioNome: documentoComprobatorioNome || null,
-            valorDanoMoral: danoMoral.trim(),
-            valorDaCausa: valorCausa.trim(),
             observacoesJuridicas: observacoes || null,
             periodos: periodosParaEnviar.map(p => ({ tipo: p.tipo, inicio: p.inicio, fim: p.fim })),
             calculoPrevidenciario: {
@@ -818,6 +925,74 @@ const ClienteDetalhesPage: React.FC = () => {
                           <span>Fim (deixe vazio p/ hoje)</span>
                           <input type="date" value={averbacaoFim} onChange={e => setAverbacaoFim(e.target.value)} />
                         </label>
+                        
+                        {/* RESULTADO DA AVERBAÇÃO VIVA */}
+                        <div className="period-calculation col-12">
+                          {averbacaoCalculada && (() => {
+                            const calc = averbacaoCalculada;
+                            const fmt = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            return (
+                              <>
+                                {!calc.erro && (() => {
+                                  if (averbacaoTipo === 'COMUM') {
+                                    const hasSplit = pcd && dataLaudo && calc.diasAntesDeficiencia > 0 && calc.diasAposDeficiencia > 0;
+                                    if (hasSplit) return (
+                                      <>
+                                        <div className="period-calculation-row"><span>Antes do diagnóstico (70E)</span><strong>{Math.round(calc.diasAntesDeficiencia)} × {fmt(calc.fatorAntesDeficiencia!)} = {Math.round(calc.diasConvertidosAntesDeficiencia)} dias</strong></div>
+                                        <div className="period-calculation-row period-calculation-row--muted"><span>Após o diagnóstico</span><strong>{Math.round(calc.diasAposDeficiencia)} × 1,00 = {Math.round(calc.diasConvertidosAposDeficiencia)} dias</strong></div>
+                                      </>
+                                    );
+                                    return <div className="period-calculation-row"><span>Fator</span><strong>{calc.fator !== null ? `${Math.round(calc.diasOriginais)} × ${fmt(calc.fator)} = ${Math.round(calc.diasConvertidos)} dias` : '--'}</strong></div>;
+                                  }
+                                  if (averbacaoTipo === 'INSALUBRE_NORMAL') {
+                                    const diasComumTotal = Math.round(calc.diasAposConversaoInsalubre - calc.diasAposLimiteEspecial);
+                                    const diasComumApos = Math.round(calc.diasConvertidosAposDeficiencia);
+                                    const diasComumAntes = diasComumTotal - diasComumApos;
+                                    const hasSplitIns = pcd && dataLaudo && calc.diasAntesDeficiencia > 0 && calc.diasAposDeficiencia > 0 && calc.fatorPonderacao !== null;
+                                    return (
+                                      <>
+                                        {calc.diasAteLimiteEspecial > 0 && !hasSplitIns && (
+                                          <><div className="period-calculation-row"><span>Etapa 1 — fator insalubre</span><strong>{Math.round(calc.diasAteLimiteEspecial)} × {fmt(calc.fator!)} = {diasComumTotal} dias</strong></div>
+                                          {calc.fatorPonderacao !== null && <div className="period-calculation-row"><span>Etapa 2 — ponderação 70E</span><strong>{diasComumTotal} × {fmt(calc.fatorPonderacao)} = {Math.round(calc.diasConvertidos - calc.diasAposLimiteEspecial)} dias</strong></div>}</>
+                                        )}
+                                        {calc.diasAteLimiteEspecial > 0 && hasSplitIns && (
+                                          <>
+                                            <div className="period-calculation-row"><span>Etapa 1 — insalubre, antes do diagnóstico</span><strong>{Math.round(calc.diasAntesDeficiencia)} × {fmt(calc.fator!)} = {diasComumAntes} dias</strong></div>
+                                            <div className="period-calculation-row period-calculation-row--muted"><span>Etapa 1 — insalubre, após o diagnóstico</span><strong>{Math.round(calc.diasAposDeficiencia)} × {fmt(calc.fator!)} = {diasComumApos} dias</strong></div>
+                                            <div className="period-calculation-row period-calculation-row--muted"><span>Total pós etapa 1</span><strong>{diasComumAntes} + {diasComumApos} = {diasComumTotal} dias</strong></div>
+                                            <div className="period-calculation-row"><span>Etapa 2 — ponderação 70E (antes do diagnóstico)</span><strong>{diasComumAntes} × {fmt(calc.fatorPonderacao!)} = {Math.round(calc.diasConvertidosAntesDeficiencia)} dias</strong></div>
+                                          </>
+                                        )}
+                                      </>
+                                    );
+                                  }
+                                  return null;
+                                })()}
+                                {averbacaoTipo !== 'INSALUBRE_NORMAL' && calc.diasAteLimiteEspecial > 0 && (
+                                  <div className="period-calculation-row period-calculation-row--muted"><span>Insalubre até 13/11/2019</span><strong>{Math.round(calc.diasAteLimiteEspecial)} dias</strong></div>
+                                )}
+                                {averbacaoTipo === 'INSALUBRE_PCD' && calc.diasAteLimiteEspecial > 0 && !calc.erro && (
+                                  <div className="period-calculation-row"><span>Fator insalubre PcD (70F)</span><strong>{Math.round(calc.diasAteLimiteEspecial)} × {fmt(calc.fator ?? 1)} = {Math.round(calc.diasConvertidos - calc.diasAposLimiteEspecial)} dias</strong></div>
+                                )}
+                                {calc.diasAposLimiteEspecial > 0 && (
+                                  <div className="period-calculation-row period-calculation-row--warning"><span>Trecho após 14/11/2019 (fator 1,00)</span><strong>{Math.round(calc.diasAposLimiteEspecial)} dias</strong></div>
+                                )}
+                                {calc.erro && (
+                                  <div className="period-calculation-row">
+                                    <span>Fator</span>
+                                    <strong>--</strong>
+                                  </div>
+                                )}
+                                <div className="period-calculation-row period-calculation-row--total">
+                                  <span>Tempo total</span>
+                                  <strong>{Math.round(calc.diasConvertidos)} dias</strong>
+                                </div>
+                                {calc.fundamento && <p className="period-calculation-note">{calc.fundamento}</p>}
+                                {calc.erro && <p className="period-calculation-error">{calc.erro}</p>}
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1063,12 +1238,18 @@ const ClienteDetalhesPage: React.FC = () => {
                 <div className="ed-grid-12">
                   <label className="ed-field col-6 money-field">
                     <span>Valor do Dano Moral (R$)</span>
-                    <input placeholder="0,00" type="text" inputMode="decimal" value={danoMoral} onChange={e => setDanoMoral(formatCurrency(e.target.value))} />
+                    <div className="money-wrap">
+                      <i>R$</i>
+                      <input placeholder="0,00" type="text" inputMode="decimal" value={danoMoral} onChange={e => setDanoMoral(formatCurrency(e.target.value))} />
+                    </div>
                   </label>
 
                   <label className="ed-field col-6 money-field">
                     <span>Valor da Causa (R$)</span>
-                    <input placeholder="0,00" type="text" inputMode="decimal" value={valorCausa} onChange={e => setValorCausa(formatCurrency(e.target.value))} />
+                    <div className="money-wrap">
+                      <i>R$</i>
+                      <input placeholder="0,00" type="text" inputMode="decimal" value={valorCausa} onChange={e => setValorCausa(formatCurrency(e.target.value))} />
+                    </div>
                   </label>
                 </div>
               </section>
