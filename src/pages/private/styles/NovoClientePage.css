@@ -476,8 +476,23 @@ input, select, textarea {
   align-items: start;
 }
 
-@media (max-width: 900px) {
-  .cal-layout { grid-template-columns: 1fr; }
+@media (max-width: 600px) {
+  .calc-summary-grid, 
+  .summary-box {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left;
+  }
+
+  .summary-box-value {
+    margin-top: 10px;
+    font-size: 20px !important;
+    align-self: flex-start;
+  }
+
+  .summary-box-title {
+    font-size: 11px !important;
+  }
 }
 
 .cal-card { padding: 1.25rem; }
