@@ -17,6 +17,11 @@ const ESPECIAL_LIMIT_DATE = '2019-11-13';
 
 const onlyDigits = (value: string) => value.replace(/\D/g, '');
 
+const unformatCurrency = (value: string) => {
+  if (!value) return '';
+  return value.replace(/\./g, '').replace(',', '.');
+};
+
 const formatCpf = (value: string) => {
   const digits = onlyDigits(value).slice(0, 11);
   return digits
@@ -681,9 +686,9 @@ const NovoClientePage: React.FC = () => {
   formDataToSend.append('estadoCivil', estadoCivil.trim());
   formDataToSend.append('profissao', profissao.trim());
   formDataToSend.append('cidadeUf', trimmedCidadeUf);
-  formDataToSend.append('contribuicaoMensal', contribuicao.trim());
-  formDataToSend.append('valorDanoMoral', danoMoral.trim());
-  formDataToSend.append('valorDaCausa', valorCausa.trim());
+  formDataToSend.append('contribuicaoMensal', unformatCurrency(contribuicao));
+  formDataToSend.append('valorDanoMoral', unformatCurrency(danoMoral));
+  formDataToSend.append('valorDaCausa', unformatCurrency(valorCausa));
   formDataToSend.append('possuiDeficiencia', String(pcd));
   formDataToSend.append('tipoDeficiencia', pcd ? tipoDeficiencia : '');
   formDataToSend.append('dataLaudo', pcd ? dataLaudo : '');
@@ -746,9 +751,9 @@ const NovoClientePage: React.FC = () => {
             estadoCivil: estadoCivil.trim(),
             profissao: profissao.trim(),
             cidadeUf: trimmedCidadeUf,
-            contribuicaoMensal: contribuicao.trim(),
-            valorDanoMoral: danoMoral.trim(),
-            valorDaCausa: valorCausa.trim(),
+            contribuicaoMensal: unformatCurrency(contribuicao),
+            valorDanoMoral: unformatCurrency(danoMoral),
+            valorDaCausa: unformatCurrency(valorCausa),
             possuiDeficiencia: pcd,
             tipoDeficiencia: pcd ? tipoDeficiencia : null,
             dataLaudo: pcd ? dataLaudo : null,
