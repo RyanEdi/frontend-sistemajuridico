@@ -109,6 +109,25 @@ const ClientesPage: React.FC = () => {
     }
   };
 
+  const handleSendEmail = async (clientId: string) => {
+  if (!confirm('Enviar ficha do cliente por e-mail?')) return;
+  
+  try {
+    const res = await fetch(apiUrl(`/api/clients/${clientId}/send-email`), {
+      method: 'POST',
+      credentials: 'include'
+    });
+    
+    if (res.ok) {
+      alert('E-mail enviado com sucesso!');
+    } else {
+      throw new Error('Falha ao enviar e-mail');
+    }
+  } catch (error) {
+    alert('Erro ao enviar e-mail. Verifique o servidor.');
+  }
+};
+
   // Função robusta para gerar a impressão do PDF com TODOS os dados e visual fiel
   const handlePrintClient = async (clientId: string) => {
     try {
@@ -629,6 +648,27 @@ const ClientesPage: React.FC = () => {
                             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>print</span>
                           </button>
                           
+                            <button
+                              type="button"
+                              title="Enviar Ficha por E-mail"
+                              onClick={() => handleSendEmail(cliente.id)}
+                              style={{
+                                background: '#fef7e0', 
+                                color: '#b47e00',
+                                border: 'none',
+                                width: '34px',
+                                height: '34px',
+                                borderRadius: '6px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                marginLeft: '8px'
+                              }}
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mail</span>
+                            </button>
+
                           <button
                             className="btn-icon-delete"
                             type="button"
