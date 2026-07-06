@@ -1718,29 +1718,26 @@ const NovoClientePage: React.FC = () => {
                 </label>
               </section>
 
-              <div className="ed-form-actions">
-                <button
-                  className="discard-btn"
-                  type="button"
-                  onClick={() => navigate('/dashboard')}
-                >
-                  <span className="material-symbols-outlined">close</span>
-                  Descartar Alteracoes
-                </button>
-
+                <div className="ed-form-actions" style={{ justifyContent: 'flex-end', display: 'flex' }}>
+                               
                 <div className="right-actions">
-                  <button className="draft-btn" type="button">
-                    Salvar como Rascunho
+                  <button
+                    className="draft-btn"
+                    type="button"
+                    onClick={() => navigate('/clientes')}
+                    style={{ marginRight: '10px' }}
+                  >
+                    Cancelar
                   </button>
                   <button
                     className="submit-btn"
                     type="submit"
                     disabled={saving}
                   >
-                    {saving ? 'Cadastrando...' : 'Cadastrar Cliente'}
+                    {saving ? 'Salvando...' : 'Cadastrar Cliente'}
                   </button>
                 </div>
-              </div>
+              </div>'
             </form>
           </div>
         </div>
