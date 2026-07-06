@@ -6,6 +6,11 @@ body, html {
   width: 100%;
 }
 
+input, select, textarea {
+  box-sizing: border-box;
+  width: 100%;
+}
+
 .ed-page {
   --primary: #0f0f0f;
   --primary-2: #1e1e1e;
@@ -943,7 +948,8 @@ body, html {
   width: 100%;
   padding: 15px;
   margin-bottom: 20px;
-  box-sizing: border-box;
+  box-sizing: border-box; 
+  overflow: hidden;       
 }
 
 .ed-card-head {
@@ -983,6 +989,7 @@ body, html {
   display: grid;
   grid-template-columns: 1fr;
   gap: 15px;
+  width: 100%;
 }
 
 .col-12 {
@@ -2025,10 +2032,9 @@ body, html {
 
 /* Isso centraliza o formulário em qualquer tela e corrige o alinhamento no mobile */
 .ed-form-shell {
-  width: 95%; /* Garante que não ultrapasse a tela no mobile */
+  width: 90%;         
   max-width: 800px;
-  margin: 0 auto; /* Centraliza a caixa na tela */
-  padding: 20px;
+  margin: 20px auto;    
   box-sizing: border-box;
 }
 
