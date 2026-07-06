@@ -448,3 +448,33 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+.caso-table-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 0.5fr;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.caso-table-row span:nth-child(1), 
+.caso-table-row span:nth-child(2) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-cell {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.caso-status {
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
