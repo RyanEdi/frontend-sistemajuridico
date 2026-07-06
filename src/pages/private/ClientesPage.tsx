@@ -261,13 +261,15 @@ const ClientesPage: React.FC = () => {
         <html lang="pt-BR">
           <head>
             <meta charset="UTF-8">
-            <title>Ficha do Cliente - ${clientData.name}</title>
+            <title>Ficha Previdenciária do Cliente - ${clientData.name}</title>
             <style>
               body { 
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
                 padding: 40px; 
                 color: #222; 
                 line-height: 1.5;
+                position: relative;
+                min-height: 100vh;
               }
               .header { 
                 display: flex; 
@@ -387,9 +389,32 @@ const ClientesPage: React.FC = () => {
                 color: #111;
               }
 
+              /* NOVO: Estilos do Footer do PDF */
+              .document-footer {
+                margin-top: 50px;
+                padding-top: 15px;
+                border-top: 1px solid #ddd;
+                text-align: center;
+                font-size: 11px;
+                color: #888;
+              }
+
               @media print {
                 @page { margin: 15mm; }
-                body { -webkit-print-color-adjust: exact; padding: 0; }
+                body { 
+                  -webkit-print-color-adjust: exact; 
+                  padding: 0; 
+                }
+                .document-footer {
+                  position: fixed;
+                  bottom: 0;
+                  left: 0;
+                  right: 0;
+                  background: white;
+                  padding-bottom: 10px;
+                }
+                
+                html { padding-bottom: 60px; } 
               }
             </style>
           </head>
@@ -399,7 +424,7 @@ const ClientesPage: React.FC = () => {
               <span class="logo-sub">Sistema Jurídico</span>
             </div>
             
-            <h1>Ficha Cadastral do Cliente</h1>
+            <h1>Ficha Previdenciária do Cliente</h1>
             
             <div class="section">
               <div class="section-header">
@@ -475,6 +500,11 @@ const ClientesPage: React.FC = () => {
                 <span class="section-title">Observações Jurídicas</span>
               </div>
               <div class="obs-text">${clientData.observacoesJuridicas || 'Nenhuma nota ou observação registrada.'}</div>
+            </div>
+
+            <!-- NOVO: Footer do Documento -->
+            <div class="document-footer">
+              &copy; 2026 Direito & Provento - Todos os direitos reservados.
             </div>
 
             <script>
