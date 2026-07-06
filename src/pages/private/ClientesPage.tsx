@@ -40,18 +40,6 @@ const formatCep = (value: string) => {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 };
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
 type Client = {
   id: string;
   name: string;
@@ -121,7 +109,7 @@ const ClientesPage: React.FC = () => {
     }
   };
 
-  // Função robusta para gerar a impressão do PDF com TODOS os dados
+  // Função robusta para gerar a impressão do PDF com TODOS os dados e visual fiel
   const handlePrintClient = async (clientId: string) => {
     try {
       const headers: HeadersInit = {};
@@ -134,7 +122,7 @@ const ClientesPage: React.FC = () => {
       if (!res.ok) throw new Error('Erro ao buscar dados do cliente');
       const clientData = await res.json();
 
-      // --- Lógica para o Resumo do Cálculo Previdenciário no PDF ---
+      // --- Lógica para o Resumo do Cálculo Previdenciário (Cards Estilizados) ---
       let calcHTML = '<p class="obs-text">Cálculo previdenciário não salvo ou incompleto.</p>';
       
       if (clientData.calculoPrevidenciario && clientData.sexoPrevidenciario) {
@@ -165,10 +153,16 @@ const ClientesPage: React.FC = () => {
             if (mesesRetroativos > 0) {
               const valorReceber = mesesRetroativos * contribNum;
               retroativoHTML = `
-                <div class="calc-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
-                  <strong style="color: #a07a00;">Valor estimado a receber (retroativo):</strong> 
-                  R$ ${valorReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br>
-                  <small style="color: #777;">(${mesesRetroativos} meses excedentes × contribuição de R$ ${clientData.contribuicaoMensal})</small>
+                <div class="summary-box summary-box-yellow">
+                  <div>
+                    <div class="summary-box-title" style="color: #a07a00;">Valor estimado a receber (retroativo)</div>
+                    <div style="font-size: 12px; color: #a06400;">
+                      ${mesesRetroativos} meses × R$ ${contribNum.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} — meta ${metaAnos}a, excedente ${Math.round(Math.abs(diasFaltando))} dias
+                    </div>
+                  </div>
+                  <div class="summary-box-value" style="color: #5a3e00;">
+                    R$ ${valorReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
                 </div>
               `;
             }
@@ -176,41 +170,90 @@ const ClientesPage: React.FC = () => {
         }
 
         calcHTML = `
-          <div class="calc-box">
-            <div class="calc-row"><strong>Total convertido e ponderado:</strong> ${Math.round(diasConv)} dias (${anosConv} anos aprox.)</div>
-            <div class="calc-row" style="color: ${podeAposentar ? '#1d8a4f' : '#c77a00'}; font-weight: bold; margin-top: 5px;">
-               Status: ${podeAposentar 
-                 ? `Pode se aposentar! (Meta de ${metaAnos} anos atingida. Excedente: ${Math.round(Math.abs(diasFaltando))} dias)` 
-                 : `Ainda não pode se aposentar. Faltam ${Math.round(Math.abs(diasFaltando))} dias para a meta de ${metaAnos} anos.`}
+          <div style="background: #f4f5f7; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+            <div class="summary-box">
+              <div>
+                <div class="summary-box-title" style="color: #617393;">TOTAL CONVERTIDO E PONDERADO</div>
+                <div style="font-size: 12px; color: #888;">${anosConv} anos aprox.</div>
+              </div>
+              <div class="summary-box-value">${Math.round(diasConv)} dias</div>
             </div>
+            
+            <div class="summary-box ${podeAposentar ? 'summary-box-green' : 'summary-box-yellow'}">
+              <div>
+                <div class="summary-box-title" style="color: ${podeAposentar ? '#1d8a4f' : '#c77a00'}; font-size: 16px;">
+                  ${podeAposentar ? 'Pode se aposentar' : 'Ainda não pode se aposentar'}
+                </div>
+                <div style="font-size: 12px; color: ${podeAposentar ? '#2a7a52' : '#a06400'}; margin-top: 2px;">
+                  ${podeAposentar 
+                    ? `Meta de ${metaAnos} anos atingida. Tempo excedente: ${Math.round(Math.abs(diasFaltando))} dias.` 
+                    : `Faltam <strong style="color:#c77a00">${Math.round(Math.abs(diasFaltando))} dias</strong> para atingir a meta de ${metaAnos} anos.`}
+                </div>
+              </div>
+            </div>
+            
             ${retroativoHTML}
+            
+            <ul style="font-size: 11px; color: #555; padding-left: 20px; margin-top: 15px; margin-bottom: 5px; line-height: 1.6;">
+              <li>Comum: fator 1,00. Se PcD, tempo antes do diagnóstico recebe ponderação 70E (metaPcD/metaComum).</li>
+              <li>Insalubre Normal: fator metaComum/base até 13/11/2019 (ex: 1,40 homem / 1,20 mulher na base 25a). Após: 1,00.</li>
+              <li>Insalubre PcD: fator metaPcD/base até 13/11/2019 (ex: Homem 1,00–1,32 / Mulher 0,80–1,12 na base 25a). Após: 1,00.</li>
+            </ul>
           </div>
         `;
       }
 
-      // --- Lógica para a Tabela de Períodos Contributivos ---
+      // --- Lógica para o Detalhamento de Períodos Contributivos ---
       let periodosHTML = '<p class="obs-text">Nenhum período contributivo cadastrado.</p>';
       if (clientData.periodos && clientData.periodos.length > 0) {
-        periodosHTML = `
-          <table class="print-table">
-            <thead>
-              <tr>
-                <th>Tipo de Tempo</th>
-                <th>Início</th>
-                <th>Fim</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${clientData.periodos.map((p: any) => `
-                <tr>
-                  <td>${p.tipo.replace('_', ' ')}</td>
-                  <td>${p.inicio ? new Date(p.inicio).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-'}</td>
-                  <td>${p.fim ? new Date(p.fim).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'Até o momento'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        `;
+        const calcPeriodos = clientData.calculoPrevidenciario?.periodos || [];
+
+        periodosHTML = clientData.periodos.map((p: any, index: number) => {
+          const pCalc = calcPeriodos[index] || {};
+          const fmt = (n: number) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          
+          const dataInicio = p.inicio ? new Date(p.inicio).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-';
+          const dataFim = p.fim ? new Date(p.fim).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'Até o momento';
+          
+          let calculoDetalhado = '<div class="obs-text" style="margin-top: 5px;">Cálculo não salvo para este período.</div>';
+          
+          if (pCalc && pCalc.diasConvertidos !== undefined) {
+            calculoDetalhado = `
+              <div style="background: #fafafa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-top: 12px;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding-bottom: 6px; margin-bottom: 6px;">
+                  <span class="label">Cálculo Base (Fator)</span>
+                  <strong style="font-size: 13px;">${Math.round(pCalc.diasOriginais || 0)} dias × ${pCalc.fator !== null ? fmt(pCalc.fator) : '1,00'} = ${Math.round(pCalc.diasConvertidos || 0)} dias</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding-bottom: 6px; margin-bottom: 6px;">
+                  <span class="label">Tempo Total do Período</span>
+                  <strong style="font-size: 14px; color: #111;">${Math.round(pCalc.diasConvertidos || 0)} dias</strong>
+                </div>
+                <div style="font-size: 11px; color: #666; font-style: italic; border-top: 1px solid #eee; padding-top: 6px;">
+                  ${pCalc.fundamento || 'Tempo comum: fator 1,00.'}
+                </div>
+              </div>
+            `;
+          }
+
+          return `
+            <div style="margin-bottom: 25px; page-break-inside: avoid; border-left: 4px solid #a07a00; padding-left: 15px;">
+              <strong style="font-size: 14px; color: #333; text-transform: uppercase; display: block; margin-bottom: 10px;">
+                PERÍODO ${index + 1} - ${String(p.tipo).replace('_', ' ')}
+              </strong>
+              <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; padding: 0;">
+                <div class="field" style="border: none; margin: 0; padding: 0;">
+                  <span class="label">Início</span>
+                  <span class="value">${dataInicio}</span>
+                </div>
+                <div class="field" style="border: none; margin: 0; padding: 0;">
+                  <span class="label">Fim</span>
+                  <span class="value">${dataFim}</span>
+                </div>
+              </div>
+              ${calculoDetalhado}
+            </div>
+          `;
+        }).join('');
       }
 
       const printContent = `
@@ -226,7 +269,6 @@ const ClientesPage: React.FC = () => {
                 color: #222; 
                 line-height: 1.5;
               }
-              /* LOGO CENTRALIZADA */
               .header { 
                 display: flex; 
                 flex-direction: column; 
@@ -263,15 +305,24 @@ const ClientesPage: React.FC = () => {
               .section { 
                 margin-bottom: 25px; 
               }
-              .section-title { 
-                font-size: 14px; 
-                font-weight: bold;
-                text-transform: uppercase;
+              .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
                 background-color: #f8f9fa; 
                 padding: 8px 12px; 
                 margin-bottom: 15px; 
                 border-left: 4px solid #dfc96a; 
+              }
+              .section-title { 
+                font-size: 14px; 
+                font-weight: bold;
+                text-transform: uppercase;
                 color: #444;
+              }
+              .section-subtitle {
+                font-size: 11px;
+                color: #666;
               }
               .grid { 
                 display: grid; 
@@ -304,31 +355,38 @@ const ClientesPage: React.FC = () => {
                 font-size: 13px;
                 white-space: pre-wrap;
               }
-              .print-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 15px;
+              
+              /* Estilos dos Cards do Resumo Previdenciário */
+              .summary-box {
+                background: #fff;
+                border-radius: 8px;
+                padding: 15px 20px;
+                margin-bottom: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: 1px solid #e0e0e0;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.02);
               }
-              .print-table th, .print-table td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
+              .summary-box-green {
+                background: #e6f9ef;
+                border-color: #34c77b;
+              }
+              .summary-box-yellow {
+                background: #fff7e6;
+                border-color: #f5a623;
+              }
+              .summary-box-title {
                 font-size: 13px;
-              }
-              .print-table th {
-                background-color: #f8f9fa;
-                font-weight: 600;
-                color: #444;
+                font-weight: bold;
                 text-transform: uppercase;
               }
-              .calc-box {
-                background: #fafafa;
-                border: 1px solid #eee;
-                padding: 15px;
-                border-radius: 4px;
+              .summary-box-value {
+                font-size: 18px;
+                font-weight: 900;
+                color: #111;
               }
-              .calc-row { margin-bottom: 8px; font-size: 14px; }
-              
+
               @media print {
                 @page { margin: 15mm; }
                 body { -webkit-print-color-adjust: exact; padding: 0; }
@@ -344,7 +402,9 @@ const ClientesPage: React.FC = () => {
             <h1>Ficha Cadastral do Cliente</h1>
             
             <div class="section">
-              <div class="section-title">Informações de Identidade</div>
+              <div class="section-header">
+                <span class="section-title">Informações de Identidade</span>
+              </div>
               <div class="grid">
                 <div class="field"><span class="label">Nome Completo</span><span class="value">${clientData.name || '-'}</span></div>
                 <div class="field"><span class="label">CPF</span><span class="value">${formatCpf(clientData.cpf)}</span></div>
@@ -357,7 +417,9 @@ const ClientesPage: React.FC = () => {
             </div>
 
             <div class="section">
-              <div class="section-title">Contato e Endereço</div>
+              <div class="section-header">
+                <span class="section-title">Contato e Endereço</span>
+              </div>
               <div class="grid">
                 <div class="field"><span class="label">E-mail</span><span class="value">${clientData.email || '-'}</span></div>
                 <div class="field"><span class="label">Telefone</span><span class="value">${formatPhone(clientData.phone) || '-'}</span></div>
@@ -368,7 +430,9 @@ const ClientesPage: React.FC = () => {
             </div>
 
             <div class="section">
-              <div class="section-title">Pessoa com Deficiência (PcD)</div>
+              <div class="section-header">
+                <span class="section-title">Pessoa com Deficiência (PcD)</span>
+              </div>
               <div class="grid">
                 <div class="field"><span class="label">Possui Deficiência?</span><span class="value">${clientData.possuiDeficiencia ? 'SIM' : 'NÃO'}</span></div>
                 ${clientData.possuiDeficiencia ? `
@@ -381,17 +445,24 @@ const ClientesPage: React.FC = () => {
             </div>
 
             <div class="section">
-              <div class="section-title">Períodos Contributivos</div>
+              <div class="section-header">
+                <span class="section-title">Períodos Contributivos</span>
+              </div>
               ${periodosHTML}
             </div>
 
-            <div class="section">
-              <div class="section-title">Resumo do Cálculo Previdenciário</div>
+            <div class="section" style="page-break-inside: avoid;">
+              <div class="section-header" style="border-left-color: #1d8a4f; background-color: #f1f8f5;">
+                <span class="section-title">Resumo do Cálculo Previdenciário</span>
+                <span class="section-subtitle">Corte insalubre em 13/11/2019</span>
+              </div>
               ${calcHTML}
             </div>
 
             <div class="section">
-              <div class="section-title">Dados Financeiros</div>
+              <div class="section-header">
+                <span class="section-title">Dados Financeiros</span>
+              </div>
               <div class="grid">
                 <div class="field"><span class="label">Contribuição (INSS/IPREV)</span><span class="value">R$ ${clientData.contribuicaoMensal || '0,00'}</span></div>
                 <div class="field"><span class="label">Valor Dano Moral</span><span class="value">R$ ${clientData.valorDanoMoral || '0,00'}</span></div>
@@ -400,7 +471,9 @@ const ClientesPage: React.FC = () => {
             </div>
 
             <div class="section">
-              <div class="section-title">Observações Jurídicas</div>
+              <div class="section-header">
+                <span class="section-title">Observações Jurídicas</span>
+              </div>
               <div class="obs-text">${clientData.observacoesJuridicas || 'Nenhuma nota ou observação registrada.'}</div>
             </div>
 
