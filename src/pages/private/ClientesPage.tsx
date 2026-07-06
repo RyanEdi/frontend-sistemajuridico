@@ -8,28 +8,19 @@ import './styles/NovoClientePage.css';
 import './styles/DashboardPage.css';
 import './styles/AdminPage.css';
 
-// Formata CPF no padrão brasileiro
-const formatCpf = (cpf: string) => {
-  if (!cpf) return '-';
-  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-};
-
-// Formata data no padrão brasileiro
-const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
+// --- FORMATADORES ---
 const onlyDigits = (value: string) => {
   if (!value) return '';
   return String(value).replace(/\D/g, '');
+};
+
+const formatCpf = (cpf: string) => {
+  if (!cpf) return '-';
+  const digits = onlyDigits(cpf).slice(0, 11);
+  return digits
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 };
 
 const formatPhone = (value: string) => {
@@ -47,6 +38,18 @@ const formatCep = (value: string) => {
   const digits = onlyDigits(value).slice(0, 8);
   if (digits.length <= 5) return digits;
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+};
+
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 };
 
 type Client = {
@@ -118,10 +121,9 @@ const ClientesPage: React.FC = () => {
     }
   };
 
-  // Função para gerar e imprimir o PDF com os detalhes do cliente
+  // Função robusta para gerar a impressão do PDF com TODOS os dados
   const handlePrintClient = async (clientId: string) => {
     try {
-      // 1. Busca os dados completos do cliente no backend
       const headers: HeadersInit = {};
       if (user?.id) headers['x-user-id'] = String(user.id);
       const res = await fetch(apiUrl(`/api/clients/${clientId}`), {
@@ -132,7 +134,85 @@ const ClientesPage: React.FC = () => {
       if (!res.ok) throw new Error('Erro ao buscar dados do cliente');
       const clientData = await res.json();
 
-      // 2. Monta o HTML da impressão com a Logo e a Ficha Cadastral
+      // --- Lógica para o Resumo do Cálculo Previdenciário no PDF ---
+      let calcHTML = '<p class="obs-text">Cálculo previdenciário não salvo ou incompleto.</p>';
+      
+      if (clientData.calculoPrevidenciario && clientData.sexoPrevidenciario) {
+        const calc = clientData.calculoPrevidenciario;
+        const diasConv = calc.diasConvertidosTotal || 0;
+        const anosConv = (diasConv / 365).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        
+        const sexo = clientData.sexoPrevidenciario;
+        const pcd = clientData.possuiDeficiencia;
+        const grau = clientData.grauDeficienciaIfbra;
+        
+        let metaAnos = 0;
+        if (sexo === 'HOMEM') {
+          metaAnos = pcd && grau ? (grau === 'GRAVE' ? 25 : grau === 'MODERADO' ? 29 : 33) : 35;
+        } else if (sexo === 'MULHER') {
+          metaAnos = pcd && grau ? (grau === 'GRAVE' ? 20 : grau === 'MODERADO' ? 24 : 28) : 30;
+        }
+
+        const metaDias = metaAnos * 365;
+        const diasFaltando = metaDias - diasConv;
+        const podeAposentar = diasFaltando <= 0 && metaAnos > 0;
+
+        let retroativoHTML = '';
+        if (clientData.contribuicaoMensal) {
+          const contribNum = parseFloat(clientData.contribuicaoMensal.replace(/\./g, '').replace(',', '.'));
+          if (!isNaN(contribNum) && contribNum > 0 && podeAposentar) {
+            const mesesRetroativos = Math.floor(Math.abs(diasFaltando) / 30);
+            if (mesesRetroativos > 0) {
+              const valorReceber = mesesRetroativos * contribNum;
+              retroativoHTML = `
+                <div class="calc-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
+                  <strong style="color: #a07a00;">Valor estimado a receber (retroativo):</strong> 
+                  R$ ${valorReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br>
+                  <small style="color: #777;">(${mesesRetroativos} meses excedentes × contribuição de R$ ${clientData.contribuicaoMensal})</small>
+                </div>
+              `;
+            }
+          }
+        }
+
+        calcHTML = `
+          <div class="calc-box">
+            <div class="calc-row"><strong>Total convertido e ponderado:</strong> ${Math.round(diasConv)} dias (${anosConv} anos aprox.)</div>
+            <div class="calc-row" style="color: ${podeAposentar ? '#1d8a4f' : '#c77a00'}; font-weight: bold; margin-top: 5px;">
+               Status: ${podeAposentar 
+                 ? `Pode se aposentar! (Meta de ${metaAnos} anos atingida. Excedente: ${Math.round(Math.abs(diasFaltando))} dias)` 
+                 : `Ainda não pode se aposentar. Faltam ${Math.round(Math.abs(diasFaltando))} dias para a meta de ${metaAnos} anos.`}
+            </div>
+            ${retroativoHTML}
+          </div>
+        `;
+      }
+
+      // --- Lógica para a Tabela de Períodos Contributivos ---
+      let periodosHTML = '<p class="obs-text">Nenhum período contributivo cadastrado.</p>';
+      if (clientData.periodos && clientData.periodos.length > 0) {
+        periodosHTML = `
+          <table class="print-table">
+            <thead>
+              <tr>
+                <th>Tipo de Tempo</th>
+                <th>Início</th>
+                <th>Fim</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${clientData.periodos.map((p: any) => `
+                <tr>
+                  <td>${p.tipo.replace('_', ' ')}</td>
+                  <td>${p.inicio ? new Date(p.inicio).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-'}</td>
+                  <td>${p.fim ? new Date(p.fim).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'Até o momento'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
       const printContent = `
         <!DOCTYPE html>
         <html lang="pt-BR">
@@ -146,34 +226,34 @@ const ClientesPage: React.FC = () => {
                 color: #222; 
                 line-height: 1.5;
               }
+              /* LOGO CENTRALIZADA */
               .header { 
                 display: flex; 
+                flex-direction: column; 
                 align-items: center; 
+                justify-content: center;
+                text-align: center;
                 border-bottom: 2px solid #dfc96a; 
                 padding-bottom: 15px; 
                 margin-bottom: 30px; 
               }
-              .logo-container { 
-                display: flex; 
-                flex-direction: column; 
-              }
               .logo-text { 
                 font-size: 32px; 
                 font-weight: 900; 
-                color: #0b192c; /* Azul escuro inspirado no seu layout */
+                color: #0b192c;
                 font-style: italic; 
                 letter-spacing: -0.5px;
                 margin-bottom: -5px;
               }
               .logo-sub { 
                 font-size: 11px; 
-                color: #a07a00; /* Dourado */
+                color: #a07a00; 
                 letter-spacing: 3px; 
                 text-transform: uppercase; 
                 font-weight: bold;
               }
               h1 { 
-                font-size: 22px; 
+                font-size: 20px; 
                 text-align: center;
                 margin-bottom: 30px;
                 text-transform: uppercase;
@@ -224,6 +304,31 @@ const ClientesPage: React.FC = () => {
                 font-size: 13px;
                 white-space: pre-wrap;
               }
+              .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 15px;
+              }
+              .print-table th, .print-table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+                font-size: 13px;
+              }
+              .print-table th {
+                background-color: #f8f9fa;
+                font-weight: 600;
+                color: #444;
+                text-transform: uppercase;
+              }
+              .calc-box {
+                background: #fafafa;
+                border: 1px solid #eee;
+                padding: 15px;
+                border-radius: 4px;
+              }
+              .calc-row { margin-bottom: 8px; font-size: 14px; }
+              
               @media print {
                 @page { margin: 15mm; }
                 body { -webkit-print-color-adjust: exact; padding: 0; }
@@ -232,10 +337,8 @@ const ClientesPage: React.FC = () => {
           </head>
           <body>
             <div class="header">
-              <div class="logo-container">
-                <span class="logo-text">Direito & Provento</span>
-                <span class="logo-sub">Sistema Jurídico</span>
-              </div>
+              <span class="logo-text">Direito & Provento</span>
+              <span class="logo-sub">Sistema Jurídico</span>
             </div>
             
             <h1>Ficha Cadastral do Cliente</h1>
@@ -248,6 +351,7 @@ const ClientesPage: React.FC = () => {
                 <div class="field"><span class="label">RG</span><span class="value">${clientData.rg || '-'}</span></div>
                 <div class="field"><span class="label">Data de Nascimento</span><span class="value">${clientData.dataNascimento ? new Date(clientData.dataNascimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-'}</span></div>
                 <div class="field"><span class="label">Estado Civil</span><span class="value">${clientData.estadoCivil ? clientData.estadoCivil.toUpperCase() : '-'}</span></div>
+                <div class="field"><span class="label">Sexo Previdenciário</span><span class="value">${clientData.sexoPrevidenciario || '-'}</span></div>
                 <div class="field"><span class="label">Profissão</span><span class="value">${clientData.profissao || '-'}</span></div>
               </div>
             </div>
@@ -257,25 +361,41 @@ const ClientesPage: React.FC = () => {
               <div class="grid">
                 <div class="field"><span class="label">E-mail</span><span class="value">${clientData.email || '-'}</span></div>
                 <div class="field"><span class="label">Telefone</span><span class="value">${formatPhone(clientData.phone) || '-'}</span></div>
-                <div class="field"><span class="label">Endereço</span><span class="value">${clientData.address || '-'}</span></div>
-                <div class="field"><span class="label">Cidade/UF</span><span class="value">${clientData.cidadeUf || '-'}</span></div>
                 <div class="field"><span class="label">CEP</span><span class="value">${formatCep(clientData.zipCode) || '-'}</span></div>
+                <div class="field"><span class="label">Cidade/UF</span><span class="value">${clientData.cidadeUf || '-'}</span></div>
+                <div class="field" style="grid-column: span 2;"><span class="label">Endereço</span><span class="value">${clientData.address || '-'}</span></div>
               </div>
             </div>
 
             <div class="section">
-              <div class="section-title">Dados Previdenciários e Processuais</div>
+              <div class="section-title">Pessoa com Deficiência (PcD)</div>
               <div class="grid">
-                <div class="field"><span class="label">Sexo Previdenciário</span><span class="value">${clientData.sexoPrevidenciario || '-'}</span></div>
-                <div class="field"><span class="label">Contribuição (INSS/IPREV)</span><span class="value">R$ ${clientData.contribuicaoMensal || '0,00'}</span></div>
-                <div class="field"><span class="label">Dano Moral</span><span class="value">R$ ${clientData.valorDanoMoral || '0,00'}</span></div>
-                <div class="field"><span class="label">Valor da Causa</span><span class="value">R$ ${clientData.valorDaCausa || '0,00'}</span></div>
-                <div class="field"><span class="label">Pessoa com Deficiência (PcD)?</span><span class="value">${clientData.possuiDeficiencia ? 'SIM' : 'NÃO'}</span></div>
+                <div class="field"><span class="label">Possui Deficiência?</span><span class="value">${clientData.possuiDeficiencia ? 'SIM' : 'NÃO'}</span></div>
                 ${clientData.possuiDeficiencia ? `
-                  <div class="field"><span class="label">Tipo de Deficiência</span><span class="value">${clientData.tipoDeficiencia || '-'}</span></div>
+                  <div class="field"><span class="label">Tipo</span><span class="value">${clientData.tipoDeficiencia || '-'}</span></div>
+                  <div class="field"><span class="label">Data do Laudo</span><span class="value">${clientData.dataLaudo ? new Date(clientData.dataLaudo).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-'}</span></div>
                   <div class="field"><span class="label">CID</span><span class="value">${clientData.cid || '-'}</span></div>
-                  <div class="field"><span class="label">Grau IFBRA</span><span class="value">${clientData.grauDeficienciaIfbra || '-'}</span></div>
+                  <div class="field"><span class="label">Grau (IFBRA)</span><span class="value">${clientData.grauDeficienciaIfbra || '-'}</span></div>
                 ` : ''}
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">Períodos Contributivos</div>
+              ${periodosHTML}
+            </div>
+
+            <div class="section">
+              <div class="section-title">Resumo do Cálculo Previdenciário</div>
+              ${calcHTML}
+            </div>
+
+            <div class="section">
+              <div class="section-title">Dados Financeiros</div>
+              <div class="grid">
+                <div class="field"><span class="label">Contribuição (INSS/IPREV)</span><span class="value">R$ ${clientData.contribuicaoMensal || '0,00'}</span></div>
+                <div class="field"><span class="label">Valor Dano Moral</span><span class="value">R$ ${clientData.valorDanoMoral || '0,00'}</span></div>
+                <div class="field"><span class="label">Valor da Causa</span><span class="value">R$ ${clientData.valorDaCausa || '0,00'}</span></div>
               </div>
             </div>
 
@@ -287,7 +407,6 @@ const ClientesPage: React.FC = () => {
             <script>
               window.onload = () => { 
                 window.print(); 
-                // Fecha a janela logo após o usuário fechar a tela de impressão
                 setTimeout(() => window.close(), 500);
               }
             </script>
@@ -295,7 +414,6 @@ const ClientesPage: React.FC = () => {
         </html>
       `;
 
-      // 3. Abre uma nova guia temporária e aciona o print
       const printWindow = window.open('', '_blank');
       if (printWindow) {
         printWindow.document.write(printContent);
@@ -386,10 +504,9 @@ const ClientesPage: React.FC = () => {
                         <td className="td-acoes" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           <Link className="btn-detalhes" to={`/clientes/${cliente.id}`}>Detalhes</Link>
                           
-                          {/* Novo botão de impressão em PDF */}
                           <button
                             type="button"
-                            title="Imprimir em PDF"
+                            title="Imprimir Ficha PDF"
                             onClick={() => handlePrintClient(cliente.id)}
                             style={{
                               background: '#e8f0fe',
