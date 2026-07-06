@@ -1278,7 +1278,7 @@ const ClienteDetalhesPage: React.FC = () => {
                   <button className="draft-btn" type="button" onClick={() => navigate('/clientes')}>
                     Cancelar
                   </button>
-                  <button className="submit-btn" type="submit" disabled={saving}>
+                  <button className="submit-btn" type="submit" disabled={saving}  onClick={() => navigate('/clientes')}>
                     {saving ? 'Salvando...' : 'Salvar Alterações'}
                   </button>
                 </div>
