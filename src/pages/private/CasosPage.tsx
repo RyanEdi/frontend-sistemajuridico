@@ -77,16 +77,30 @@ const CasosPage: React.FC = () => {
             <div className="db-list-head">
               <div className="caso-filtros">
                 {(['todos', 'ativo', 'em_andamento', 'concluido', 'suspenso'] as const).map(f => (
-                  <button key={f} className={`caso-filtro-btn${filtro === f ? ' active' : ''}`} onClick={() => setFiltro(f)}>
+                  <button
+                    key={f}
+                    className={`caso-filtro-btn${filtro === f ? ' active' : ''}`}
+                    onClick={() => setFiltro(f)}
+                  >
                     {f === 'todos' ? 'Todos' : STATUS_LABEL[f]}
-                    <span className="caso-filtro-count">{f === 'todos' ? casos.length : casos.filter(c => c.status === f).length}</span>
+                    <span className="caso-filtro-count">
+                      {f === 'todos' ? casos.length : casos.filter(c => c.status === f).length}
+                    </span>
                   </button>
                 ))}
-              </div>
-              <button className="submit-btn" onClick={() => navigate('/casos/novo')}>
-                <span className="material-symbols-outlined">add</span> Novo Caso
-              </button>
             </div>
+
+            {/* Botão de Novo Caso com o estilo igual ao de Clientes */}
+            <button 
+              className="submit-btn" 
+              type="button" 
+              onClick={() => navigate('/casos/novo')}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
+              Adicionar Novo Caso
+            </button>
+          </div>
 
             {loading ? <p className="db-empty">Carregando...</p> : (
               <div className="caso-table">
