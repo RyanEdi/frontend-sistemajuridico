@@ -2089,7 +2089,7 @@ html, body {
 }
 
 /* Container que agrupa os inputs do formulário */
-.form-row {
+#form-row {
   display: grid;
   /* Aumente o valor proporcional (ex: 2fr para Título, 1fr para outros) */
   grid-template-columns: 2fr 1fr 1fr; 

@@ -114,7 +114,7 @@ const NovoEventoPage: React.FC = () => {
                   <h3>Dados do Evento</h3>
                 </div>
 
-                <div className="ed-grid-12">
+                <div className="ed-grid-12" id="form-row">
                   <label className="ed-field col-8">
                     <span>Título</span>
                     <input
