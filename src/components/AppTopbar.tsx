@@ -38,8 +38,13 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
   searchValue,
   onSearchChange,
 }) => {
-  const { user, fotoUrl } = useAuth();
+  // Adicionado a função logout extraída do useAuth
+  const { user, fotoUrl, logout } = useAuth();
   const [showNotif, setShowNotif] = useState(false);
+  
+  // Novo estado para controlar o menu do perfil
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loadingNotif, setLoadingNotif] = useState(false);
   const [viewed, setViewed] = useState(false);
@@ -193,18 +198,82 @@ const AppTopbar: React.FC<AppTopbarProps> = ({
           <span className="material-symbols-outlined">help</span>
         </a>
 
-        <Link className="ed-user-wrap" to="/perfil" title="Ver perfil">
-          <div className="ed-user-text">
-            <p>{user?.name || 'Advogado(a)'}</p>
-            <small>{user?.isAdmin ? 'Admin' : 'Perfil'}</small>
-          </div>
-          <div className="ed-avatar-circle">
-            {fotoUrl
-              ? <img src={fotoUrl} alt={user?.name || 'Avatar'} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-              : initials
-            }
-          </div>
-        </Link>
+        {/* ── Perfil com Menu Expansível (Hover) ── */}
+        <div 
+          className="ed-profile-menu-wrapper"
+          onMouseEnter={() => setShowProfileMenu(true)}
+          onMouseLeave={() => setShowProfileMenu(false)}
+          style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '100%' }}
+        >
+          <Link className="ed-user-wrap" to="/perfil" title="Ver perfil" style={{ textDecoration: 'none' }}>
+            <div className="ed-user-text">
+              <p>{user?.name || 'Advogado(a)'}</p>
+              <small>{user?.isAdmin ? 'Admin' : 'Perfil'}</small>
+            </div>
+            <div className="ed-avatar-circle">
+              {fotoUrl
+                ? <img src={fotoUrl} alt={user?.name || 'Avatar'} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                : initials
+              }
+            </div>
+          </Link>
+
+          {/* Janela Flutuante do Menu */}
+          {showProfileMenu && (
+            <div 
+              className="ed-profile-dropdown"
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                paddingTop: '10px', /* Cria uma "ponte" invisível para o mouse não perder o hover */
+                zIndex: 100,
+                minWidth: '180px'
+              }}
+            >
+              <div style={{
+                background: '#fff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                <Link 
+                  to="/perfil" 
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px',
+                    color: '#475569', textDecoration: 'none', fontSize: '14px',
+                    borderRadius: '6px', transition: 'background 0.2s'
+                  }}
+                  onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
+                  onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>person</span>
+                  Meu Perfil
+                </Link>
+                
+                <div style={{ height: '1px', background: '#e2e8f0', margin: '4px 0' }} />
+                
+                <button 
+                  onClick={logout}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px',
+                    background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer',
+                    fontSize: '14px', fontWeight: 500, borderRadius: '6px', transition: 'background 0.2s',
+                    textAlign: 'left'
+                  }}
+                  onMouseOver={e => e.currentTarget.style.background = '#fef2f2'}
+                  onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>logout</span>
+                  Sair da conta
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
