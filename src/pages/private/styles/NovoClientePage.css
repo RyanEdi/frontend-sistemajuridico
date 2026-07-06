@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Manrope:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
+body, html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 .ed-page {
   --primary: #0f0f0f;
   --primary-2: #1e1e1e;
@@ -854,8 +859,11 @@
 }
 
 .ed-main-inner {
-  max-width: 64rem;
+  padding: 10px;
+  width: 100%;
+  max-width: 800px; 
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .ed-heading-block {
@@ -932,10 +940,10 @@
 }
 
 .ed-card {
-  background: #fff;
-  border-radius: 0.8rem;
-  box-shadow: 0 32px 32px -16px rgba(3, 22, 50, 0.03);
-  padding: 2rem;
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
 }
 
 .ed-card-head {
@@ -973,8 +981,8 @@
 
 .ed-grid-12 {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: 15px;
 }
 
 .col-12 {
@@ -994,8 +1002,9 @@
 }
 
 .ed-field {
-  display: grid;
-  gap: 0.45rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .ed-field > span {
