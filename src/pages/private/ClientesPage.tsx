@@ -9,8 +9,6 @@ import './styles/DashboardPage.css';
 import './styles/AdminPage.css';
 import EmailModal from '../../template/EmailModal';
 
-const [emailModal, setEmailModal] = useState({ isOpen: false, clienteId: '' });
-
 // --- FORMATADORES ---
 const onlyDigits = (value: string) => {
   if (!value) return '';
@@ -63,6 +61,8 @@ const ClientesPage: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [emailModal, setEmailModal] = useState({ isOpen: false, clienteId: '' });
 
   useEffect(() => {
     document.title = 'Clientes | Direito & Provento';
@@ -620,58 +620,31 @@ const ClientesPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredClients.map(cliente => (
-                      <tr key={cliente.id}>
-                        <td>{cliente.name || '-'}</td>
-                        <td>{formatCpf(cliente.cpf)}</td>
-                        <td>{cliente.email || '-'}</td>
-                        <td>{cliente.cidadeUf || '-'}</td>
-                        <td className="td-acoes" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <Link className="btn-detalhes" to={`/clientes/${cliente.id}`}>Detalhes</Link>
-                          
-                          <button
-                            type="button"
-                            title="Imprimir Ficha PDF"
-                            onClick={() => handlePrintClient(cliente.id)}
-                            style={{
-                              background: '#e8f0fe',
-                              color: '#1a73e8',
-                              border: 'none',
-                              width: '34px',
-                              height: '34px',
-                              borderRadius: '6px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              transition: 'background 0.2s',
-                              padding: 0
-                            }}
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>print</span>
-                          </button>
+            {filteredClients.map((cliente) => ( // Garanta que o nome seja 'cliente'
+              <tr key={cliente.id}>
+                <td>{cliente.name || '-'}</td>
+                <td>{formatCpf(cliente.cpf)}</td>
+                <td>{cliente.email || '-'}</td>
+                <td>{cliente.cidadeUf || '-'}</td>
+                <td className="td-acoes" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <Link className="btn-detalhes" to={`/clientes/${cliente.id}`}>Detalhes</Link>
+                  
+                  <button type="button" onClick={() => handlePrintClient(cliente.id)}>
+                    <span className="material-symbols-outlined">print</span>
+                  </button>
                           
                            <button
-                            type="button"
-                            title="Enviar Ficha por E-mail"
-                            onClick={() => setEmailModal({ isOpen: true, clienteId: cliente.id })} // Abre o modal
-                            style={{
-                              background: '#fef7e0',
-                              color: '#b47e00',
-                              border: 'none',
-                              width: '34px',
-                              height: '34px',
-                              borderRadius: '6px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              marginLeft: '8px'
-                            }}
-                          >
-                            
-                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mail</span>
-                          </button>
+                    type="button"
+                    title="Enviar Ficha por E-mail"
+                    onClick={() => setEmailModal({ isOpen: true, clienteId: cliente.id })}
+                    style={{
+                      background: '#fef7e0', color: '#b47e00', border: 'none',
+                      width: '34px', height: '34px', borderRadius: '6px',
+                      cursor: 'pointer', marginLeft: '8px'
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mail</span>
+                  </button>
 
                           <button
                             className="btn-icon-delete"
@@ -692,12 +665,13 @@ const ClientesPage: React.FC = () => {
         </div>
       </main>
 
-      {/* <EmailModal 
-        isOpen={emailModal.isOpen} 
-        onClose={() => setEmailModal({ isOpen: false, clienteId: '' })} 
-        clienteId={emailModal.clienteId}
-        pdfData={{ nome: 'Ficha_Cadastral.pdf', tamanho: '150KB' }}
-      /> */}
+      {/* MODAL DESCOMENTADO */}
+        <EmailModal 
+          isOpen={emailModal.isOpen} 
+          onClose={() => setEmailModal({ isOpen: false, clienteId: '' })} 
+          clienteId={emailModal.clienteId}
+          pdfData={{ nome: 'Ficha_Cadastral.pdf', tamanho: '150KB' }}
+        />
   
       <div className="ed-bg-right" aria-hidden="true" />
       <div className="ed-bg-left" aria-hidden="true" />
