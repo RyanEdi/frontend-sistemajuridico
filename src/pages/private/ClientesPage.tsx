@@ -692,12 +692,12 @@ const ClientesPage: React.FC = () => {
         </div>
       </main>
 
-      <EmailModal 
+      {/* <EmailModal 
         isOpen={emailModal.isOpen} 
         onClose={() => setEmailModal({ isOpen: false, clienteId: '' })} 
         clienteId={emailModal.clienteId}
         pdfData={{ nome: 'Ficha_Cadastral.pdf', tamanho: '150KB' }}
-      />
+      /> */}
   
       <div className="ed-bg-right" aria-hidden="true" />
       <div className="ed-bg-left" aria-hidden="true" />
