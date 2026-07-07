@@ -63,7 +63,6 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, clienteId, pdf
           </div>
         </header>
 
-        {/* ... restante do corpo (body) que você já tinha ... */}
         <div className="modal-body">
           <div className="form-group">
             <label>Para:</label>

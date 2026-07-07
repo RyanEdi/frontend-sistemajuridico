@@ -112,7 +112,7 @@ const ClientesPage: React.FC = () => {
     }
   };
 
-  const handleSendEmail = async (clientId: string) => {
+const handleSendEmail = async (clientId: string) => {
   if (!confirm('Enviar ficha do cliente por e-mail?')) return;
   
   try {
@@ -124,10 +124,15 @@ const ClientesPage: React.FC = () => {
     if (res.ok) {
       alert('E-mail enviado com sucesso!');
     } else {
-      throw new Error('Falha ao enviar e-mail');
+      // Captura a mensagem de erro vinda do backend, se houver
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Falha ao enviar e-mail');
     }
-  } catch (error) {
-    alert('Erro ao enviar e-mail. Verifique o servidor.');
+  } catch (err) {
+    console.error('Erro ao enviar e-mail:', err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    // CORREÇÃO: Exibe o erro no frontend usando alert de forma limpa
+    alert(`Erro no envio: ${errorMessage}`);
   }
 };
 
