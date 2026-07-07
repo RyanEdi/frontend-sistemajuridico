@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { apiUrl } from '../config/api'; // Certifique-se de importar o apiUrl
-import './styles/EmailModal.css';
+import './EmailModal.css';
 
 interface EmailModalProps {
   isOpen: boolean;
@@ -12,9 +12,9 @@ interface EmailModalProps {
 const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, clienteId, pdfData }) => {
   const [loading, setLoading] = useState(false);
   const [emailData, setEmailData] = useState({
-    de: 'contato@direitoeprovento.com.br',
+    de: 'direitoeprovento@gmail.com',
     para: '',
-    assunto: 'Ficha Cadastral do Cliente',
+    assunto: 'Ficha Previdenciária do Cliente',
     mensagem: ''
   });
 
@@ -74,7 +74,6 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, clienteId, pdf
               onChange={(e) => setEmailData({...emailData, para: e.target.value})} 
             />
           </div>
-          {/* ... campos de assunto e mensagem mantidos iguais ... */}
         </div>
       </div>
     </div>
