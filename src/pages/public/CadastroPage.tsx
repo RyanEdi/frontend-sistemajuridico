@@ -388,27 +388,19 @@ const CadastroPage: React.FC = () => {
                     checked={lgpdConsent}
                     onChange={e => setLgpdConsent(e.target.checked)}
                   />
-                  <span className="consent-text">
-                    Declaro que li e aceito a{' '}
-                    <a
-                      href="/politica-de-privacidade"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="consent-link"
-                    >
-                      Política de Privacidade
-                    </a>{' '}
-                    e os{' '}
-                    <a
-                      href="/termos-de-uso"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="consent-link"
-                    >
-                      Termos de Uso
-                    </a>
-                    , consentindo com o tratamento dos meus dados pessoais nos termos da LGPD.
-                  </span>
+                  <div className="consent-text-wrapper">
+                    <span className="consent-text">
+                      Declaro que li e aceito a{' '}
+                      <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" className="consent-link">
+                        Política de Privacidade
+                      </a>{' '}
+                      e os{' '}
+                      <a href="/termos-de-uso" target="_blank" rel="noopener noreferrer" className="consent-link">
+                        Termos de Uso
+                      </a>
+                      , consentindo com o tratamento dos meus dados pessoais nos termos da LGPD.
+                    </span>
+                  </div>
                 </label>
                 <Link
                   to="/loginpage"
