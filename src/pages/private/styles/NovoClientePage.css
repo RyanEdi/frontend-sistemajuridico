@@ -961,10 +961,14 @@ input, select, textarea {
 
 .ed-card {
   width: 100%;
-  padding: 15px;
+  padding: 20px;
   margin-bottom: 20px;
   box-sizing: border-box; 
-  overflow: hidden;       
+  overflow: hidden;   
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #eef2f6; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03)    
 }
 
 .ed-card-head {

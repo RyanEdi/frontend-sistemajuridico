@@ -638,7 +638,7 @@ const handleSendEmail = async (clientId: string) => {
                     <span className="material-symbols-outlined">print</span>
                   </button>
                           
-                           <button
+                    {/*<button
                     type="button"
                     title="Enviar Ficha por E-mail"
                     onClick={() => setEmailModal({ isOpen: true, clienteId: cliente.id })}
@@ -649,7 +649,7 @@ const handleSendEmail = async (clientId: string) => {
                     }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>mail</span>
-                  </button>
+                  </button>*/}
 
                           <button
                             className="btn-icon-delete"
