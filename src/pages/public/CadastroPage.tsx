@@ -326,8 +326,8 @@ const CadastroPage: React.FC = () => {
 
               {formData.numeroOab && (
               <div className="input-field" style={{ marginBottom: '6px' }}>
-                <label>Foto da Carteira OAB <span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#8a96a8' }}>(opcional)</span></label>
-                <input
+                <label>Foto da Carteira OAB <span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#8a96a8' }}></span></label>
+                <input required
                   type="file"
                   accept="image/*"
                   onChange={handleFotoChange}
@@ -376,14 +376,13 @@ const CadastroPage: React.FC = () => {
               <button
                 className="btn-submit"
                 type="submit"
-                disabled={submitting || !lgpdConsent}
               >
                 {submitting ? 'Cadastrando...' : 'Cadastrar'}
               </button>
 
               <div className="form-footer">
                 <label className="checkbox-container checkbox-container--consent">
-                  <input
+                  <input required
                     type="checkbox"
                     checked={lgpdConsent}
                     onChange={e => setLgpdConsent(e.target.checked)}
