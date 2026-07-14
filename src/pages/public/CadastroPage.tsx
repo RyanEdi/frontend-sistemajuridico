@@ -326,8 +326,8 @@ const CadastroPage: React.FC = () => {
 
               {formData.numeroOab && (
               <div className="input-field" style={{ marginBottom: '6px' }}>
-                <label>Foto da Carteira OAB <span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#8a96a8' }}>(opcional)</span></label>
-                <input
+                <label>Foto da Carteira OAB <span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#8a96a8' }}></span></label>
+                <input required
                   type="file"
                   accept="image/*"
                   onChange={handleFotoChange}
@@ -376,39 +376,30 @@ const CadastroPage: React.FC = () => {
               <button
                 className="btn-submit"
                 type="submit"
-                disabled={submitting || !lgpdConsent}
               >
                 {submitting ? 'Cadastrando...' : 'Cadastrar'}
               </button>
 
               <div className="form-footer">
                 <label className="checkbox-container checkbox-container--consent">
-                  <input
+                  <input required
                     type="checkbox"
                     checked={lgpdConsent}
                     onChange={e => setLgpdConsent(e.target.checked)}
                   />
-                  <span className="consent-text">
-                    Declaro que li e aceito a{' '}
-                    <a
-                      href="/politica-de-privacidade"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="consent-link"
-                    >
-                      Política de Privacidade
-                    </a>{' '}
-                    e os{' '}
-                    <a
-                      href="/termos-de-uso"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="consent-link"
-                    >
-                      Termos de Uso
-                    </a>
-                    , consentindo com o tratamento dos meus dados pessoais nos termos da LGPD.
-                  </span>
+                  <div className="consent-text-wrapper">
+                    <span className="consent-text">
+                      Declaro que li e aceito a{' '}
+                      <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" className="consent-link">
+                        Política de Privacidade
+                      </a>{' '}
+                      e os{' '}
+                      <a href="/termos-de-uso" target="_blank" rel="noopener noreferrer" className="consent-link">
+                        Termos de Uso
+                      </a>
+                      , consentindo com o tratamento dos meus dados pessoais nos termos da LGPD.
+                    </span>
+                  </div>
                 </label>
                 <Link
                   to="/loginpage"

@@ -254,8 +254,9 @@
 .checkbox-container {
   color: #5b6b84;
   cursor: auto;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  white-space: nowrap;
   gap: 8px;
 }
 
@@ -376,23 +377,35 @@
 }
 
 #cadastro-page #cadastro-form .checkbox-container--consent {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  width: 100%;
-  margin: 0;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  white-space: normal !important;
+  width: 100% !important;
+  gap: 12px;
   color: #5b6b84;
   cursor: pointer;
 }
 
 #cadastro-page #cadastro-form .checkbox-container--consent input {
-  margin-top: 2px;
-  flex-shrink: 0;
+  margin-top: 4px;
+  flex-shrink: 0 !important;
+  width: 16px;  
+  height: 16px; 
+}
+
+
+#cadastro-page #cadastro-form .consent-text-wrapper {
+  flex: 1 !important; 
+  white-space: normal !important;
+  text-align: left !important;
 }
 
 #cadastro-page #cadastro-form .consent-text {
   font-size: 0.82rem;
   line-height: 1.5;
+  display: inline;
 }
 
 #cadastro-page #cadastro-form .consent-link {
