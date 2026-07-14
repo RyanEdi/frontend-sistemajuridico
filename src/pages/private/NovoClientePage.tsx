@@ -721,7 +721,7 @@ const NovoClientePage: React.FC = () => {
     formDataToSend.append('documentoComprobatorio', fileInput.files[0]);
   }
 
-  res = await fetch(apiUrl('/api/clients', {
+  res = await fetch(apiUrl('/api/clients'), {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -732,7 +732,7 @@ const NovoClientePage: React.FC = () => {
   });
       } else {
         // Sem arquivo, envia como JSON
-        res = await fetch(apiUrl('/api/clients', {
+        res = await fetch(apiUrl('/api/clients'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
