@@ -22,11 +22,11 @@ import CasoDetailPage from './pages/private/CasoDetailPage';
 import PeticoesPage from './pages/private/PeticoesPage';
 import NovaPeticaoPage from './pages/private/NovaPeticaoPage';
 import CalendarioPage from './pages/private/CalendarioPage';
-import NovoEventoPage from './pages/private/NovoEventoPage';
+import NovoEventoPage from './pages/private/Calendario/NovoEventoPage';
 import DocumentosPage from './pages/private/DocumentosPage';
 import LicencaPremioPage from './pages/private/LicencaPremioPage';
 import PerfilPage from './pages/private/PerfilPage';
-import SettingsPage from './pages/private/SettingsPage';
+import SettingsPage from './pages/private/ConfiguracoesPage';
 const AdminRoute: React.FC = () => {
   const { user, isLoading } = useAuth();
   if (isLoading) return null;
