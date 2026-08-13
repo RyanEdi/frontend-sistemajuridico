@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { apiUrl } from '../../config/api';
-import AppSidebar from '../../components/AppSidebar';
-import AppTopbar from '../../components/AppTopbar';
-import './styles/NovoClientePage.css';
-import './styles/DashboardPage.css';
+import { apiUrl } from '../../../config/api';
+import AppSidebar from '../../../components/AppSidebar';
+import AppTopbar from '../../../components/AppTopbar';
+import '../styles/NovoClientePage.css';
+import '../styles/DashboardPage.css';
 
 type StatusCaso = 'ativo' | 'em_andamento' | 'concluido' | 'suspenso';
 

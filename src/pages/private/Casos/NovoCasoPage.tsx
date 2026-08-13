@@ -1,9 +1,9 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { apiUrl } from '../../config/api';
-import AppSidebar from '../../components/AppSidebar';
-import AppTopbar from '../../components/AppTopbar';
-import './styles/NovoClientePage.css';
+import { apiUrl } from '../../../config/api';
+import AppSidebar from '../../../components/AppSidebar';
+import AppTopbar from '../../../components/AppTopbar';
+import '../styles/NovoClientePage.css';
 
 const TIPOS_CASO = [
   'Aposentadoria por Tempo de Contribuição',

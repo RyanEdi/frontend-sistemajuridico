@@ -11,22 +11,21 @@ import PoliticaPrivacidadePage from './pages/public/PoliticaPrivacidadePage';
 import TermosDeUsoPage from './pages/public/TermosDeUsoPage';
 import PagamentoPage from './pages/public/PagamentoPage';
 import DashboardPage from './pages/private/DashboardPage';
-import ClientDetailPage from './pages/private/ClientDetailPage';
 import AdminPage from './pages/private/AdminPage';
-import NovoClientePage from './pages/private/NovoClientePage';
-import ClientesPage from './pages/private/ClientesPage';
-import ClienteDetalhesPage from './pages/private/ClienteDetalhesPage';
-import CasosPage from './pages/private/CasosPage';
-import NovoCasoPage from './pages/private/NovoCasoPage';
-import CasoDetailPage from './pages/private/CasoDetailPage';
-import PeticoesPage from './pages/private/PeticoesPage';
-import NovaPeticaoPage from './pages/private/NovaPeticaoPage';
-import CalendarioPage from './pages/private/CalendarioPage';
+import ClientesPage from './pages/private/Clientes/ClientesPage';
+import CasosPage from './pages/private/Casos/CasosPage';
+import NovoCasoPage from './pages/private/Casos/NovoCasoPage';
+import CasoDetailPage from './pages/private/Casos/CasoDetailPage';
+import PeticoesPage from './pages/private/Peticoes/PeticoesPage';
+import NovaPeticaoPage from './pages/private/Peticoes/NovaPeticaoPage';
+import CalendarioPage from './pages/private/Calendario/CalendarioPage';
 import NovoEventoPage from './pages/private/Calendario/NovoEventoPage';
 import DocumentosPage from './pages/private/DocumentosPage';
 import LicencaPremioPage from './pages/private/LicencaPremioPage';
 import PerfilPage from './pages/private/PerfilPage';
 import SettingsPage from './pages/private/ConfiguracoesPage';
+import ClienteFormPage from './pages/private/Clientes/ClienteFormPage';
+
 const AdminRoute: React.FC = () => {
   const { user, isLoading } = useAuth();
   if (isLoading) return null;
@@ -58,10 +57,9 @@ const App: React.FC = () => (
         {/* Rotas protegidas - requer login */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/clients/:id" element={<ClientDetailPage />} />
+          <Route path="/clients/:id" element={<ClienteFormPage />} />
           <Route path="/admin" element={<AdminRoute />} />
-          <Route path="/clientes/novo-cliente" element={<NovoClientePage />} />
-          <Route path="/clientes/:id" element={<ClienteDetalhesPage />} />
+          <Route path="/clientes/novo-cliente" element={<ClienteFormPage />} />
           <Route path="/clientes" element={<ClientesPage />} />
           <Route path="/casos" element={<CasosPage />} />
           <Route path="/casos/novo" element={<NovoCasoPage />} />

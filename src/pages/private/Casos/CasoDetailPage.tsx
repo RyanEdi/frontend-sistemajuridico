@@ -1,9 +1,9 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { apiUrl } from '../../config/api';
-import AppSidebar from '../../components/AppSidebar';
-import AppTopbar from '../../components/AppTopbar';
-import './styles/NovoClientePage.css';
+import { apiUrl } from '../../../config/api';
+import AppSidebar from '../../../components/AppSidebar';
+import AppTopbar from '../../../components/AppTopbar';
+import '../styles/NovoClientePage.css';
 
 type StatusCaso = 'ativo' | 'em_andamento' | 'concluido' | 'suspenso';
 

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { apiUrl } from '../../config/api';
-import AppSidebar from '../../components/AppSidebar';
-import AppTopbar from '../../components/AppTopbar';
-import './styles/NovoClientePage.css';
-import './styles/DashboardPage.css';
-import './styles/AdminPage.css';
-import EmailModal from '../../template/EmailModal';
+import { useAuth } from '../../../context/AuthContext';
+import { apiUrl } from '../../../config/api';
+import AppSidebar from '../../../components/AppSidebar';
+import AppTopbar from '../../../components/AppTopbar';
+import '../styles/NovoClientePage.css';
+import '../styles/DashboardPage.css';
+import '../styles/AdminPage.css';
+import EmailModal from '../../../template/EmailModal';
 
 // --- FORMATADORES ---
 const onlyDigits = (value: string) => {
